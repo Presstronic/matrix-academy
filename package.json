@@ -1,0 +1,24 @@
+{
+  "name": "matrix-academy",
+  "private": true,
+  "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky install",
+    "headers": "node tools/add-headers.mjs",
+    "headers:short": "SHORT=1 node tools/add-headers.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^9.36.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "turbo": "^2.5.8",
+    "typescript": "^5.9.2"
+  }
+}

@@ -66,7 +66,7 @@ pnpm dev
 
 ## 🤝 Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to improve.
+Not accepting contributions at this time.
 
 - Code of Conduct: _coming soon_
 - Contributing Guide: _coming soon_

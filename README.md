@@ -5,7 +5,6 @@ _A choose-your-own-adventure journey into software mastery_
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](./)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Made with TypeScript](https://img.shields.io/badge/made%20with-TypeScript-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-pink.svg)](./CONTRIBUTING.md)
 
 ---
 

@@ -1,0 +1,7 @@
+/**
+ * @file ${FILE_BASENAME} — Matrix Academy
+ * @author ${AUTHOR_NAME} <${AUTHOR_EMAIL}>
+ * @copyright ${YEAR} Presstronic Studios LLC
+ * @license GPL-3.0-or-later
+ */
+

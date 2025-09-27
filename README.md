@@ -3,8 +3,8 @@
 _A choose-your-own-adventure journey into software mastery_
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](./)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Made with TypeScript](https://img.shields.io/badge/made%20with-TypeScript-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](./LICENSE.md)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 
 ---
 
@@ -74,7 +74,7 @@ Not accepting contributions at this time.
 
 ## 📜 License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
+Distributed under the **GNU GPLv3 (or later)**. See [LICENSE.md](./LICENSE.md) for details.
 
 ---
 

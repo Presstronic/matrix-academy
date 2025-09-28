@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 // --- config ---
 const ROOT = path.resolve(__dirname, '..');
-const GLOB_DIRS = [path.join(ROOT, 'apps'), path.join(ROOT, 'packages')];
+const GLOB_DIRS = [ROOT, path.join(ROOT, 'apps'), path.join(ROOT, 'packages')];
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const AUTHOR_NAME = process.env.MA_AUTHOR_NAME || 'Your Name';
 const AUTHOR_EMAIL = process.env.MA_AUTHOR_EMAIL || 'you@example.com';

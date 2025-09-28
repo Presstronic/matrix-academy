@@ -30,6 +30,18 @@ const withTsProject = (cfgArray) =>
   }));
 
 export default [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.turbo/**',
+      'coverage/**',
+      '**/*.d.ts',
+      'pnpm-lock.yaml',
+    ],
+  },
+
   // Base JS rules
   js.configs.recommended,
 
@@ -40,7 +52,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: globals.node,
+      globals: { ...globals.node },
     },
   },
 

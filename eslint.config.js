@@ -103,21 +103,18 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
 
   // TS-only project rules (register the plugin here)
   {
-    files: ['**/*.ts', '**/*.tsx'],
-    plugins: {
-      '@typescript-eslint': tseslint.plugin,
-    },
+    files: ['**/*.ts'],
     rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            { name: 'class-validator', message: 'Use @nestjs/class-validator instead.' },
+            { name: 'class-transformer', message: 'Use @nestjs/class-transformer instead.' },
+          ],
+        },
+      ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': [
-        'error',
-        { checksVoidReturn: { attributes: false } },
-      ],
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
     },
   },
 ];

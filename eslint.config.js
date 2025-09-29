@@ -7,6 +7,7 @@ import js from '@eslint/js';
 import headers from 'eslint-plugin-headers';
 import importPlugin from 'eslint-plugin-import';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -69,6 +70,7 @@ export default [
       headers, // eslint-plugin-headers
       import: importPlugin,
       'simple-import-sort': simpleImportSort,
+      'unused-imports': unusedImports,
     },
     settings: {
       // let eslint-plugin-import resolve TS paths/aliases
@@ -76,9 +78,13 @@ export default [
         typescript: { project: ['./tsconfig.base.json'] },
       },
     },
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: { ...globals.node, ...globals.es2023 },
+    },
     rules: {
-      // Enforce a leading JSDoc header with @file and SPDX line.
-      // On --fix, it normalizes to a proper /** ... */ block.
+      // JSDoc SPDX header
       'headers/header-format': [
         'error',
         {
@@ -98,13 +104,45 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
       'import/first': 'error',
       'import/no-duplicates': 'error',
       'import/newline-after-import': 'error',
+
+      // Cycle & self-import guards
+      'import/no-cycle': ['error', { maxDepth: 1, ignoreExternal: true }],
+      'import/no-self-import': 'error',
+
+      // Unused imports/vars (auto-removable)
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
 
-  // TS-only project rules (register the plugin here)
+  // TS-only project rules
   {
-    files: ['**/*.ts'],
+    files: ['**/*.ts', '**/*.tsx'],
     rules: {
+      // Enforce NodeNext ESM style in TS source:
+      // - relative imports must use .js (so compiled JS runs natively)
+      // - .ts/.tsx must NOT appear in import specifiers
+      'import/extensions': [
+        'error',
+        'always',
+        {
+          ignorePackages: true,
+          pattern: {
+            js: 'always',
+            mjs: 'always',
+            cjs: 'always',
+            jsx: 'always',
+            ts: 'never',
+            tsx: 'never',
+            mts: 'never',
+            cts: 'never',
+          },
+        },
+      ],
+
       'no-restricted-imports': [
         'error',
         {
@@ -115,6 +153,32 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
         },
       ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/no-unused-vars': 'off', // handled by unused-imports
+    },
+  },
+
+  // Entrypoints: Nest's Type<any> token trips this rule; disable just here
+  {
+    files: ['apps/**/src/main.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
+
+  // Tests & tooling: allow dev deps and loosen some checks
+  {
+    files: [
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      'tools/**',
+      '**/jest*.{cjs,js,ts}',
+      '**/vitest.config.{ts,js}',
+      '**/*.config.{ts,js,cjs,mjs}',
+    ],
+    rules: {
+      'import/no-extraneous-dependencies': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
     },
   },
 ];

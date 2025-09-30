@@ -143,15 +143,6 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
         },
       ],
 
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            { name: 'class-validator', message: 'Use @nestjs/class-validator instead.' },
-            { name: 'class-transformer', message: 'Use @nestjs/class-transformer instead.' },
-          ],
-        },
-      ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/no-unused-vars': 'off', // handled by unused-imports

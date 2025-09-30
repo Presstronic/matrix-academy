@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import { Body, Controller, Get, HttpCode, HttpStatus,Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 import type { AppService } from './app.service.js';
 import type { EchoDto } from './dto/echo.dto.js';

@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import type { TransformFnParams } from '@nestjs/class-transformer';
-import { Transform } from '@nestjs/class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from '@nestjs/class-validator';
+import type { TransformFnParams } from 'class-transformer';
+import { Transform } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 /**
  * Coerce typical inputs to an integer for validation while preserving strictness:

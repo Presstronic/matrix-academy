@@ -143,15 +143,6 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
         },
       ],
 
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            { name: 'class-validator', message: 'Use @nestjs/class-validator instead.' },
-            { name: 'class-transformer', message: 'Use @nestjs/class-transformer instead.' },
-          ],
-        },
-      ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/no-unused-vars': 'off', // handled by unused-imports
@@ -163,6 +154,14 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
     files: ['apps/**/src/main.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
+
+  // Controllers: Need regular imports for DI (services) and validation (DTOs)
+  {
+    files: ['**/*.controller.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 

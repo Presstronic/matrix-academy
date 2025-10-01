@@ -22,7 +22,12 @@
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
     "headers": "node tools/add-headers.mjs",
-    "headers:short": "SHORT=1 node tools/add-headers.mjs"
+    "headers:short": "SHORT=1 node tools/add-headers.mjs",
+    "docker:dev:up": "./scripts/docker-dev.sh up",
+    "docker:dev:down": "./scripts/docker-dev.sh down",
+    "docker:dev:logs": "./scripts/docker-dev.sh logs",
+    "docker:dev:restart": "./scripts/docker-dev.sh restart",
+    "docker:dev:clean": "./scripts/docker-dev.sh clean"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

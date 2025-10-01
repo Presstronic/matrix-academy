@@ -37,19 +37,70 @@ Rather than endless tutorials, every decision you make impacts your path—combi
 
 ## 🧑‍🚀 Getting Started
 
+### Option 1: Docker (Recommended)
+
+The fastest way to get the full stack running with PostgreSQL and Redis:
+
 ```bash
 # Clone the repo
 git clone https://github.com/your-username/matrix-academy.git
 cd matrix-academy
 
+# Start the development environment
+pnpm docker:dev:up
+# OR: ./scripts/docker-dev.sh up
+
+# View logs
+pnpm docker:dev:logs
+
+# Stop when done
+pnpm docker:dev:down
+```
+
+**Services available:**
+
+- Backend API: http://localhost:3000
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+
+**Helper commands:**
+
+```bash
+pnpm docker:dev:up          # Start all services
+pnpm docker:dev:down        # Stop all services
+pnpm docker:dev:logs        # View all logs
+pnpm docker:dev:restart     # Restart all services
+pnpm docker:dev:clean       # Clean everything
+
+# Or use the script directly for more options:
+./scripts/docker-dev.sh help        # Show all commands
+./scripts/docker-dev.sh logs-be     # Backend logs only
+./scripts/docker-dev.sh shell-db    # PostgreSQL shell
+./scripts/docker-dev.sh rebuild     # Rebuild containers
+```
+
+### Option 2: Local Development
+
+Run services locally without Docker:
+
+```bash
 # Install dependencies
 pnpm install
 
-# Run locally
+# Set up environment
+cp apps/backend/.env.example apps/backend/.env
+# Edit .env with your local database/redis configuration
+
+# Start PostgreSQL and Redis (via Docker or local install)
+# Then run the dev server
 pnpm dev
 ```
 
-> **Prereqs:** Node 20+, pnpm, Docker (optional for DB).
+> **Prerequisites:**
+>
+> - Docker & Docker Compose (Option 1)
+> - Node 24+, pnpm 9+ (Option 2)
+> - PostgreSQL 17+ and Redis 7+ (Option 2 only)
 
 ---
 

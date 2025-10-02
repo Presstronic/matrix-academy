@@ -117,6 +117,24 @@ If migrations fail:
 3. Review TypeORM logs (`DATABASE_LOGGING=true`)
 4. Check for conflicting schema changes
 
+### Docker Compose Environment Switching
+
+When switching between production (`docker-compose.yml`) and development (`docker-compose.dev.yml`) configurations:
+
+1. **Password mismatch**: Production uses `matrix_password`, dev uses `dev_password`
+2. **Clean volumes** when switching: `docker compose down -v`
+3. **Rebuild containers** after switching: `docker compose up -d --build`
+
+### Hot Reload in Docker (macOS)
+
+**Known Limitation**: File system events don't propagate reliably through Docker volumes on macOS.
+
+**Workaround Options**:
+
+1. **Recommended for active development**: Run backend locally with `pnpm dev` and only databases in Docker
+2. **Docker-only development**: Manually restart backend container after code changes: `docker compose restart backend`
+3. **Use polling**: The `dev:docker` script attempts to use file polling, but results may vary
+
 ## Development Workflow
 
 1. Start PostgreSQL (via Docker Compose or locally)

@@ -79,22 +79,26 @@ pnpm docker:dev:clean       # Clean everything
 ./scripts/docker-dev.sh rebuild     # Rebuild containers
 ```
 
-### Option 2: Local Development
+### Option 2: Local Development (Recommended for macOS)
 
-Run services locally without Docker:
+Run backend locally with databases in Docker for best hot-reload experience:
 
 ```bash
 # Install dependencies
 pnpm install
 
+# Start only databases via Docker
+docker compose up -d postgres redis
+
 # Set up environment
 cp apps/backend/.env.example apps/backend/.env
-# Edit .env with your local database/redis configuration
+# Edit .env with your configuration
 
-# Start PostgreSQL and Redis (via Docker or local install)
-# Then run the dev server
+# Run the dev server locally
 pnpm dev
 ```
+
+> **Note**: Hot reload works better when running the backend locally on macOS due to Docker volume file-watching limitations. See [Database docs](./docs/DATABASE.md#hot-reload-in-docker-macos) for details.
 
 > **Prerequisites:**
 >

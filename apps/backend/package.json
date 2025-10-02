@@ -11,6 +11,7 @@
   },
   "scripts": {
     "dev": "NODE_NO_WARNINGS=1 nest start --watch -c nest-cli.json",
+    "dev:docker": "NODE_NO_WARNINGS=1 TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling nest start --watch -c nest-cli.json",
     "build": "nest build -c nest-cli.json",
     "start": "node dist/main.js",
     "lint": "eslint .",

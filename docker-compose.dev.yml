@@ -21,7 +21,7 @@ services:
       # Prevent node_modules from being overwritten
       - /app/node_modules
       - /app/apps/backend/node_modules
-    command: pnpm --filter @matrix-academy/backend dev
+    command: pnpm --filter @matrix-academy/backend dev:docker
 
   # PostgreSQL with exposed logs for debugging
   postgres:

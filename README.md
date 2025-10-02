@@ -104,6 +104,12 @@ pnpm dev
 
 ---
 
+## 📚 Documentation
+
+- [Database Setup & Migrations](./docs/DATABASE.md) - PostgreSQL configuration, TypeORM migrations, and best practices
+
+---
+
 ## 📍 Roadmap
 
 - [ ] Core story engine

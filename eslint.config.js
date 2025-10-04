@@ -157,9 +157,9 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
     },
   },
 
-  // Controllers: Need regular imports for DI (services) and validation (DTOs)
+  // Controllers & Guards: Need regular imports for DI (services, guards) and validation (DTOs)
   {
-    files: ['**/*.controller.ts'],
+    files: ['**/*.controller.ts', '**/*.guard.ts'],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'off',
     },

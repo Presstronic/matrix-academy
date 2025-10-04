@@ -11,14 +11,31 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
+import { ThrottlerExceptionFilter } from './common/guards/throttler-exception.filter.js';
 
 async function bootstrap(): Promise<void> {
-   
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: { origin: true, credentials: true },
+    cors: {
+      origin: process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()) ?? [],
+      credentials: true,
+    },
   });
 
-  app.use(helmet());
+  // Configure Helmet based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  app.use(
+    helmet({
+      contentSecurityPolicy: isProduction ? undefined : false,
+      crossOriginEmbedderPolicy: isProduction ? undefined : false,
+    }),
+  );
+
+  // Set request body size limit to 10mb
+  app.useBodyParser('json', { limit: '10mb' });
+  app.useBodyParser('urlencoded', { limit: '10mb', extended: true });
+
+  app.useGlobalFilters(new ThrottlerExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

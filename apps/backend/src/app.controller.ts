@@ -6,12 +6,14 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 import { AppService } from './app.service.js';
+import { Public } from './auth/decorators/public.decorator.js';
 import { EchoDto } from './dto/echo.dto.js';
 
 @Controller()
 export class AppController {
   constructor(private readonly app: AppService) {}
 
+  @Public()
   @Get('/health')
   health() {
     return this.app.getHealth();

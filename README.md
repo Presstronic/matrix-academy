@@ -2,9 +2,13 @@
 
 _A choose-your-own-adventure journey into software mastery_
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](./)
+[![CI](https://github.com/Presstronic/matrix-academy/actions/workflows/ci.yml/badge.svg)](https://github.com/Presstronic/matrix-academy/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Presstronic/matrix-academy/actions/workflows/codeql.yml/badge.svg)](https://github.com/Presstronic/matrix-academy/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/Presstronic/matrix-academy/branch/main/graph/badge.svg)](https://codecov.io/gh/Presstronic/matrix-academy)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](./LICENSE.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
 
 ---
 

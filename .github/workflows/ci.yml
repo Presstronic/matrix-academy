@@ -195,15 +195,20 @@ jobs:
       - name: Run E2E tests
         run: pnpm --filter @matrix-academy/backend test:e2e:cov
         env:
-          DATABASE_HOST: localhost
-          DATABASE_PORT: 5432
-          DATABASE_USER: postgres
-          DATABASE_PASSWORD: postgres
-          DATABASE_NAME: matrix_academy_test
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/matrix_academy_test
+          DATABASE_SSL: false
+          DATABASE_LOGGING: false
+          CORS_ORIGINS: http://localhost:3001
+          JWT_SECRET: test-jwt-secret-key-minimum-32-chars-long-for-ci-testing
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-key-minimum-32-chars-long-for-ci
+          JWT_REFRESH_EXPIRES_IN: 7d
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_SECRET: test-secret-key-for-ci
-          NODE_ENV: test
+          LOG_LEVEL: error
+          THROTTLE_TTL: 60
+          THROTTLE_LIMIT: 100
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

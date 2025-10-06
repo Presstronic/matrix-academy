@@ -1,0 +1,34 @@
+{
+  "displayName": "backend:e2e",
+  "preset": "ts-jest/presets/default-esm",
+  "testEnvironment": "node",
+  "rootDir": "..",
+  "testRegex": ".e2e-spec.ts$",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "extensionsToTreatAsEsm": [".ts"],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "transform": {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ESNext",
+          "moduleResolution": "NodeNext",
+          "rootDir": "."
+        }
+      }
+    ]
+  },
+  "coverageDirectory": "<rootDir>/coverage-e2e",
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.d.ts",
+    "!src/main.ts",
+    "!src/test-utils/**",
+    "!src/database/migrations/**"
+  ]
+}

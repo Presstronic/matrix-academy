@@ -5,7 +5,11 @@
     "rootDir": "src",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "paths": {
+      "@matrix-academy/shared": ["../../packages/shared/src/index.ts"],
+      "@matrix-academy/shared/*": ["../../packages/shared/src/*"]
+    }
   },
   "include": ["src"]
 }

@@ -11,6 +11,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { ThrottlerExceptionFilter } from './common/guards/throttler-exception.filter.js';
 
 async function bootstrap(): Promise<void> {
@@ -35,7 +36,10 @@ async function bootstrap(): Promise<void> {
   app.useBodyParser('json', { limit: '10mb' });
   app.useBodyParser('urlencoded', { limit: '10mb', extended: true });
 
+  // Global exception filter - must be registered FIRST to catch all exceptions
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new ThrottlerExceptionFilter());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

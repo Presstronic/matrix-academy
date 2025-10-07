@@ -46,6 +46,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build dependencies
+        run: pnpm --filter @matrix-academy/shared build
+
       - name: Run linter
         run: pnpm lint
 
@@ -83,6 +86,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build dependencies
+        run: pnpm --filter @matrix-academy/shared build
+
       - name: Type check
         run: pnpm --filter @matrix-academy/backend exec tsc --noEmit
 
@@ -119,6 +125,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build dependencies
+        run: pnpm --filter @matrix-academy/shared build
 
       - name: Run unit tests
         run: pnpm --filter @matrix-academy/backend test:cov
@@ -191,6 +200,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build dependencies
+        run: pnpm --filter @matrix-academy/shared build
 
       - name: Run E2E tests
         run: pnpm --filter @matrix-academy/backend test:e2e:cov

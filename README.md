@@ -104,9 +104,24 @@ pnpm dev
 
 > **Note**: Hot reload works better when running the backend locally on macOS due to Docker volume file-watching limitations. See [Database docs](./docs/DATABASE.md#hot-reload-in-docker-macos) for details.
 
+### Option 3: Docker Build (Production)
+
+Build and run production-optimized Docker images:
+
+```bash
+# Build development image
+docker build -f apps/backend/Dockerfile --target development -t matrix-academy-backend:dev .
+
+# Build production image (optimized, ~383MB)
+docker build -f apps/backend/Dockerfile --target production -t matrix-academy-backend:prod .
+
+# Run production container
+docker run -p 3000:3000 --env-file apps/backend/.env matrix-academy-backend:prod
+```
+
 > **Prerequisites:**
 >
-> - Docker & Docker Compose (Option 1)
+> - Docker & Docker Compose (Option 1 & 3)
 > - Node 24+, pnpm 9+ (Option 2)
 > - PostgreSQL 17+ and Redis 7+ (Option 2 only)
 

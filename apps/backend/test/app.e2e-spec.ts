@@ -3,9 +3,6 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -37,9 +34,15 @@ describe('AppController (e2e)', () => {
         .get('/health')
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveProperty('ok', true);
-          expect(res.body).toHaveProperty('service', 'api');
-          expect(res.body).toHaveProperty('timestamp');
+          expect(res.body).toHaveProperty('success', true);
+          expect(res.body).toHaveProperty('data');
+          expect(res.body.data).toHaveProperty('ok', true);
+          expect(res.body.data).toHaveProperty('service', 'api');
+          expect(res.body.data).toHaveProperty('timestamp');
+          expect(res.body).toHaveProperty('metadata');
+          expect(res.body.metadata).toHaveProperty('timestamp');
+          expect(res.body.metadata).toHaveProperty('correlationId');
+          expect(res.body.metadata).toHaveProperty('version', '1.0');
         });
     });
 
@@ -48,9 +51,9 @@ describe('AppController (e2e)', () => {
         .get('/health')
         .expect(200)
         .expect((res) => {
-          const timestamp = new Date(res.body.timestamp);
+          const timestamp = new Date(res.body.data.timestamp);
           expect(timestamp).toBeInstanceOf(Date);
-          expect(timestamp.toISOString()).toBe(res.body.timestamp);
+          expect(timestamp.toISOString()).toBe(res.body.data.timestamp);
         });
     });
   });
@@ -90,10 +93,12 @@ describe('AppController (e2e)', () => {
         .send({ message: 'Hello World' })
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveProperty('ok', true);
-          expect(res.body).toHaveProperty('echo');
-          expect(res.body.echo).toHaveProperty('message', 'Hello World');
-          expect(res.body.echo).not.toHaveProperty('age');
+          expect(res.body).toHaveProperty('success', true);
+          expect(res.body).toHaveProperty('data');
+          expect(res.body.data).toHaveProperty('ok', true);
+          expect(res.body.data).toHaveProperty('echo');
+          expect(res.body.data.echo).toHaveProperty('message', 'Hello World');
+          expect(res.body.data.echo).not.toHaveProperty('age');
         });
     });
 
@@ -104,10 +109,12 @@ describe('AppController (e2e)', () => {
         .send({ message: 'Hello World', age: 25 })
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveProperty('ok', true);
-          expect(res.body).toHaveProperty('echo');
-          expect(res.body.echo).toHaveProperty('message', 'Hello World');
-          expect(res.body.echo).toHaveProperty('age', 25);
+          expect(res.body).toHaveProperty('success', true);
+          expect(res.body).toHaveProperty('data');
+          expect(res.body.data).toHaveProperty('ok', true);
+          expect(res.body.data).toHaveProperty('echo');
+          expect(res.body.data.echo).toHaveProperty('message', 'Hello World');
+          expect(res.body.data.echo).toHaveProperty('age', 25);
         });
     });
 
@@ -126,7 +133,7 @@ describe('AppController (e2e)', () => {
         .send({ message: 123 })
         .expect(200)
         .expect((res) => {
-          expect(res.body.echo.message).toBe('123');
+          expect(res.body.data.echo.message).toBe('123');
         });
     });
 

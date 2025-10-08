@@ -5,7 +5,7 @@
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -13,6 +13,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from './auth/guards/roles.guard.js';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
 import { getDatabaseConfig } from './config/database.config.js';
 import type { EnvironmentVariables} from './config/env.validation.js';
 import { validate } from './config/env.validation.js';
@@ -52,6 +53,10 @@ import { validate } from './config/env.validation.js';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

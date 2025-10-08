@@ -33,7 +33,19 @@ function coerceIntForValidation(value: unknown): number | undefined {
   return Number.NaN;
 }
 
+/**
+ * Coerce message to string:
+ * - number → string representation
+ * - string → as-is
+ * - anything else → string representation
+ */
+function coerceToString(value: unknown): string {
+  if (typeof value === 'string') return value;
+  return String(value);
+}
+
 export class EchoDto {
+  @Transform(({ value }: TransformFnParams) => coerceToString(value), { toClassOnly: true })
   @IsString()
   message!: string;
 

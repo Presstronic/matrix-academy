@@ -170,6 +170,7 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
     files: [
       '**/*.spec.ts',
       '**/*.test.ts',
+      '**/test/**/*.ts',
       'tools/**',
       '**/jest*.{cjs,js,ts}',
       '**/vitest.config.{ts,js}',

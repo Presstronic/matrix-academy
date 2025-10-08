@@ -27,12 +27,12 @@ describe('EchoDto', () => {
       expect(errors[0].constraints).toHaveProperty('isString');
     });
 
-    it('should reject non-string message', async () => {
+    it('should coerce numeric message to string', async () => {
       const dto = plainToInstance(EchoDto, { message: 123 });
       const errors = await validate(dto);
 
-      expect(errors).toHaveLength(1);
-      expect(errors[0].property).toBe('message');
+      expect(errors).toHaveLength(0);
+      expect(dto.message).toBe('123');
     });
   });
 

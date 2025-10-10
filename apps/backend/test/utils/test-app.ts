@@ -33,14 +33,18 @@ export const createTestApp = async (): Promise<INestApplication> => {
   })
     .overrideProvider(ConfigService)
     .useValue({
-      get: (key: string) => {
+      get: (key: string, _options?: { infer: true }) => {
         if (key === 'JWT_SECRET') return getTestJwtSecret();
         if (key === 'DATABASE_URL') return ':memory:';
+        if (key === 'REDIS_URL') return 'redis://localhost:6379';
+        if (key === 'REDIS_TTL') return 300000;
         return undefined;
       },
       getOrThrow: (key: string) => {
         if (key === 'JWT_SECRET') return getTestJwtSecret();
         if (key === 'DATABASE_URL') return ':memory:';
+        if (key === 'REDIS_URL') return 'redis://localhost:6379';
+        if (key === 'REDIS_TTL') return 300000;
         throw new Error(`Config key ${key} not found`);
       },
     })

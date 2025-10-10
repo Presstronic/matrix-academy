@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -17,6 +18,7 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { getDatabaseConfig } from './config/database.config.js';
 import type { EnvironmentVariables} from './config/env.validation.js';
 import { validate } from './config/env.validation.js';
+import { getRedisConfig } from './config/redis.config.js';
 
 @Module({
   imports: [
@@ -48,6 +50,12 @@ import { validate } from './config/env.validation.js';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<EnvironmentVariables>) =>
         getDatabaseConfig(configService),
+    }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService<EnvironmentVariables>) =>
+        await getRedisConfig(configService),
     }),
   ],
   controllers: [AppController],

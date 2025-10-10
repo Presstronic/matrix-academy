@@ -25,9 +25,8 @@ export interface EnvironmentVariables {
   JWT_REFRESH_EXPIRES_IN: string;
 
   // Redis
-  REDIS_HOST: string;
-  REDIS_PORT: number;
-  REDIS_PASSWORD?: string;
+  REDIS_URL: string;
+  REDIS_TTL?: number;
 
   // Logging
   LOG_LEVEL: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly';
@@ -84,11 +83,16 @@ export const validationSchema = Joi.object<EnvironmentVariables>({
     .description('JWT refresh token expiration (e.g., 15m, 1h, 7d)'),
 
   // Redis
-  REDIS_HOST: Joi.string().hostname().default('localhost').description('Redis host'),
+  REDIS_URL: Joi.string()
+    .uri({ scheme: ['redis', 'rediss'] })
+    .default('redis://localhost:6379')
+    .description('Redis connection URL'),
 
-  REDIS_PORT: Joi.number().port().default(6379).description('Redis port'),
-
-  REDIS_PASSWORD: Joi.string().optional().description('Redis password (if required)'),
+  REDIS_TTL: Joi.number()
+    .integer()
+    .min(1000)
+    .optional()
+    .description('Default cache TTL in milliseconds'),
 
   // Logging
   LOG_LEVEL: Joi.string()

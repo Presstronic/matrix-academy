@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
@@ -12,11 +13,26 @@ import type { EchoDto } from './dto/echo.dto.js';
 
 describe('AppController', () => {
   let controller: AppController;
+  let cacheManager: {
+    get: () => Promise<unknown>;
+    set: () => Promise<void>;
+  };
 
   beforeEach(async () => {
+    cacheManager = {
+      get: () => Promise.resolve(null),
+      set: () => Promise.resolve(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        AppService,
+        {
+          provide: CACHE_MANAGER,
+          useValue: cacheManager,
+        },
+      ],
     }).compile();
 
     controller = module.get<AppController>(AppController);
@@ -27,8 +43,8 @@ describe('AppController', () => {
   });
 
   describe('health', () => {
-    it('should return health status from service', () => {
-      const result = controller.health();
+    it('should return health status from service', async () => {
+      const result = await controller.health();
 
       expect(result).toHaveProperty('ok', true);
       expect(result).toHaveProperty('service', 'api');

@@ -132,16 +132,24 @@ describe('Redis Integration (e2e)', () => {
       expect(response1.body.data.timestamp).toBe(response2.body.data.timestamp);
     });
 
-    it('should serve cached response faster on subsequent requests', async () => {
-      const start1 = Date.now();
-      await request(app.getHttpServer()).get('/health').expect(200);
-      const duration1 = Date.now() - start1;
+    it('should serve cached response on subsequent requests', async () => {
+      // Clear cache to start fresh
+      await cacheManager.del('health');
 
-      const start2 = Date.now();
-      await request(app.getHttpServer()).get('/health').expect(200);
-      const duration2 = Date.now() - start2;
+      // First request - should create cache entry
+      const response1 = await request(app.getHttpServer()).get('/health').expect(200);
+      const timestamp1 = response1.body.data.timestamp;
 
-      expect(duration2).toBeLessThanOrEqual(duration1);
+      // Verify the value was cached
+      const cachedValue = await cacheManager.get('health');
+      expect(cachedValue).toBeDefined();
+
+      // Second request - should return cached value
+      const response2 = await request(app.getHttpServer()).get('/health').expect(200);
+      const timestamp2 = response2.body.data.timestamp;
+
+      // Both timestamps should be identical (proving cache was used)
+      expect(timestamp2).toBe(timestamp1);
     });
   });
 

@@ -356,15 +356,17 @@ describe('Auth (e2e)', () => {
         .send({ refreshToken: thirdRefreshToken })
         .expect(204);
 
+      // Third refresh token should be invalid (was logged out)
       await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken: thirdRefreshToken })
         .expect(401);
 
+      // First refresh token should still be valid (different session, not logged out)
       await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken: firstRefreshToken })
-        .expect(401);
+        .expect(200);
     });
   });
 });

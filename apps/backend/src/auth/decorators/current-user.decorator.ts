@@ -24,11 +24,18 @@ export interface AuthenticatedUser {
  * getProfile(@CurrentUser() user: AuthenticatedUser) {
  *   return this.usersService.findOne(user.id);
  * }
+ *
+ * // Extract specific property
+ * @Post('update')
+ * update(@CurrentUser('id') userId: string) {
+ *   return this.usersService.update(userId);
+ * }
  * ```
  */
 export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): AuthenticatedUser => {
+  (data: keyof AuthenticatedUser | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<{ user: AuthenticatedUser }>();
-    return request.user;
+    const user = request.user;
+    return data ? user?.[data] : user;
   },
 );

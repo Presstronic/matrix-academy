@@ -8,6 +8,7 @@
  * @copyright 2025 Presstronic Studios LLC
  */
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RefreshToken, User } from '../database/entities/index.js';
@@ -16,7 +17,10 @@ import { AuthService } from './auth.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, RefreshToken])],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([User, RefreshToken]),
+  ],
   controllers: [AuthController],
   providers: [AuthService, PermissionsService],
   exports: [AuthService, PermissionsService],

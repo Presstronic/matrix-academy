@@ -12,7 +12,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
@@ -195,6 +196,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       type: 'refresh',
+      jti: crypto.randomUUID(), // Unique identifier for this token
     };
 
     const secret: string = this.configService.get('JWT_REFRESH_SECRET', { infer: true })!;

@@ -47,7 +47,7 @@ Rather than endless tutorials, every decision you make impacts your path—combi
 ## 🛠️ Tech Stack
 
 - **Backend**: [NestJS](https://nestjs.com/) + [TypeORM](https://typeorm.io/)
-- **Frontend**: [React](https://react.dev/) + [Material UI](https://mui.com/)
+- **Frontend**: [React 18](https://react.dev/) + [Vite](https://vite.dev/) + [Material UI v6](https://mui.com/)
 - **Database**: PostgreSQL 17
 - **Cache**: Redis 7
 - **Authentication**: JWT + Refresh Tokens
@@ -81,6 +81,7 @@ pnpm docker:dev:down
 
 **Services available:**
 
+- Frontend Application: http://localhost:5173
 - Backend API: http://localhost:3000
 - API Documentation: http://localhost:3000/api/docs
 - PostgreSQL: localhost:5432
@@ -104,7 +105,7 @@ pnpm docker:dev:clean       # Clean everything
 
 ### Option 2: Local Development (Recommended for macOS)
 
-Run backend locally with databases in Docker for best hot-reload experience:
+Run services locally with databases in Docker for best hot-reload experience:
 
 ```bash
 # Install dependencies
@@ -117,11 +118,46 @@ docker compose up -d postgres redis
 cp apps/backend/.env.example apps/backend/.env
 # Edit .env with your configuration
 
-# Run the dev server locally
+# Run the dev servers locally
 pnpm dev
+
+# Or run frontend/backend separately:
+pnpm --filter @matrix-academy/frontend dev  # Frontend on http://localhost:5173
+pnpm --filter @matrix-academy/backend dev   # Backend on http://localhost:3000
 ```
 
-> **Note**: Hot reload works better when running the backend locally on macOS due to Docker volume file-watching limitations. See [Database docs](./docs/DATABASE.md#hot-reload-in-docker-macos) for details.
+> **Note**: Hot reload works better when running services locally on macOS due to Docker volume file-watching limitations. See [Database docs](./docs/DATABASE.md#hot-reload-in-docker-macos) for details.
+
+### Frontend Development
+
+The frontend application is built with:
+
+- **React 18** with TypeScript
+- **Vite** for fast development and optimized builds
+- **Material-UI (MUI)** v6 for UI components
+- **Emotion** for styling
+
+```bash
+# Navigate to frontend directory
+cd apps/frontend
+
+# Install dependencies (if not already installed)
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Run linter
+pnpm lint
+```
+
+The frontend dev server runs on http://localhost:5173 with hot module replacement (HMR) enabled.
 
 ### Option 3: Docker Build (Production)
 

@@ -21,7 +21,21 @@ Rather than endless tutorials, every decision you make impacts your path—combi
 
 ---
 
-## 🚀 Features (In Progress)
+## 🚀 Features
+
+### ✅ Implemented
+
+- 🔐 **Authentication System** — JWT-based authentication with refresh tokens
+- 👥 **Multi-Tenancy** — Full tenant isolation at the database level
+- 🛡️ **Role-Based Access Control (RBAC)** — Flexible permissions system
+- ⚡ **Redis Caching** — HTTP response caching with automatic invalidation
+- 📖 **API Documentation** — Interactive Swagger/OpenAPI docs at `/api/docs`
+- 🎯 **Global Exception Handling** — Standardized error responses across all endpoints
+- 🔄 **Response Transformation** — Consistent API response structure
+- ✅ **Comprehensive Testing** — Unit and E2E test suites with coverage reporting
+- 🐳 **Docker Support** — Multi-stage builds for development and production
+
+### 🚧 In Progress
 
 - 🧭 **Choose‑Your‑Own‑Adventure Flow** — learn by navigating story‑driven paths
 - 🎯 **Skill Challenges** — complete coding puzzles to unlock the next stage
@@ -34,7 +48,11 @@ Rather than endless tutorials, every decision you make impacts your path—combi
 
 - **Backend**: [NestJS](https://nestjs.com/) + [TypeORM](https://typeorm.io/)
 - **Frontend**: [React](https://react.dev/) + [Material UI](https://mui.com/)
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL 17
+- **Cache**: Redis 7
+- **Authentication**: JWT + Refresh Tokens
+- **API Documentation**: Swagger/OpenAPI
+- **Testing**: Jest (Unit & E2E)
 - **Infrastructure**: Docker • (Kubernetes planned)
 
 ---
@@ -64,6 +82,7 @@ pnpm docker:dev:down
 **Services available:**
 
 - Backend API: http://localhost:3000
+- API Documentation: http://localhost:3000/api/docs
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
 
@@ -130,6 +149,56 @@ docker run -p 3000:3000 --env-file apps/backend/.env matrix-academy-backend:prod
 ## 📚 Documentation
 
 - [Database Setup & Migrations](./docs/DATABASE.md) - PostgreSQL configuration, TypeORM migrations, and best practices
+- **API Documentation**: Interactive Swagger UI available at http://localhost:3000/api/docs when running locally
+
+---
+
+## 🧪 Testing
+
+Run the test suites to ensure everything is working correctly:
+
+```bash
+# Unit tests
+pnpm test
+
+# Unit tests with coverage
+pnpm test:cov
+
+# E2E tests
+pnpm --filter @matrix-academy/backend test:e2e
+
+# E2E tests with coverage
+pnpm --filter @matrix-academy/backend test:e2e:cov
+
+# Watch mode for development
+pnpm test:watch
+```
+
+**Current Coverage:**
+
+- Unit Tests: 39 passing
+- E2E Tests: 39 passing
+- Overall coverage tracked via CodeCov
+
+---
+
+## 🔐 Authentication
+
+The API uses JWT-based authentication with refresh tokens:
+
+1. **Register**: `POST /auth/register` - Create a new user account
+2. **Login**: `POST /auth/login` - Get access and refresh tokens
+3. **Refresh**: `POST /auth/refresh` - Get a new access token
+4. **Logout**: `POST /auth/logout` - Invalidate refresh token
+5. **Get User**: `GET /auth/me` - Get current user information
+
+All endpoints (except public routes) require a valid JWT token in the `Authorization` header:
+
+```bash
+Authorization: Bearer <your-jwt-token>
+```
+
+Try it out in the Swagger UI at `/api/docs` with the "Authorize" button.
 
 ---
 

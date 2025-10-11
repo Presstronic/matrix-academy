@@ -11,6 +11,7 @@ export default {
   testMatch: ['**/*.spec.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   extensionsToTreatAsEsm: ['.ts'],
+  injectGlobals: true,
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },

@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+import { ApiProperty } from '@nestjs/swagger';
 import type { TransformFnParams } from 'class-transformer';
 import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
@@ -45,10 +46,21 @@ function coerceToString(value: unknown): string {
 }
 
 export class EchoDto {
+  @ApiProperty({
+    description: 'Message to echo back',
+    example: 'Hello, world!',
+  })
   @Transform(({ value }: TransformFnParams) => coerceToString(value), { toClassOnly: true })
   @IsString()
   message!: string;
 
+  @ApiProperty({
+    description: 'Optional age parameter',
+    example: 25,
+    minimum: 0,
+    maximum: 150,
+    required: false,
+  })
   @IsOptional()
   @Transform(({ value }: TransformFnParams) => coerceIntForValidation(value), { toClassOnly: true })
   @IsInt()

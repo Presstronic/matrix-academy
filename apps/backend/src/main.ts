@@ -8,6 +8,7 @@ import 'reflect-metadata';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
@@ -49,6 +50,31 @@ async function bootstrap(): Promise<void> {
       forbidUnknownValues: false,
     }),
   );
+
+  // Configure Swagger/OpenAPI
+  const config = new DocumentBuilder()
+    .setTitle('Matrix Academy API')
+    .setDescription('Matrix Academy backend API documentation')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name will be used in @ApiBearerAuth() decorator
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Keep authorization token after page refresh
+    },
+  });
 
   app.enableVersioning({ type: VersioningType.URI });
   app.enableShutdownHooks();

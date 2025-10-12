@@ -5,7 +5,7 @@
  */
 import type { RenderOptions } from '@testing-library/react';
 import { render } from '@testing-library/react';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { vi } from 'vitest';
 
@@ -20,7 +20,7 @@ interface TestRouterOptions {
 export function renderWithRouter(
   ui: ReactElement,
   { initialEntries = ['/'], initialIndex = 0 }: TestRouterOptions = {},
-  renderOptions?: Omit<RenderOptions, 'wrapper'>,
+  renderOptions?: RenderOptions,
 ) {
   const router = createMemoryRouter(
     [
@@ -35,12 +35,8 @@ export function renderWithRouter(
     },
   );
 
-  function Wrapper({ children }: { children: ReactNode }) {
-    return <RouterProvider router={router}>{children}</RouterProvider>;
-  }
-
   return {
-    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
+    ...render(<RouterProvider router={router} />, renderOptions),
     router,
   };
 }

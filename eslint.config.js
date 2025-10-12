@@ -6,9 +6,12 @@
 import js from '@eslint/js';
 import headers from 'eslint-plugin-headers';
 import importPlugin from 'eslint-plugin-import';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
+import { resolve } from 'path';
 import tseslint from 'typescript-eslint';
 
 const tsParserOptions = {
@@ -17,10 +20,12 @@ const tsParserOptions = {
 };
 
 // Attach parserOptions and restrict to TS files for type-aware presets
+// Exclude frontend files as they use different tsconfig structure
 const withTsProject = (cfgArray) =>
   cfgArray.map((cfg) => ({
     ...cfg,
     files: ['**/*.ts', '**/*.tsx'],
+    ignores: ['apps/frontend/**'],
     languageOptions: {
       ...(cfg.languageOptions ?? {}),
       parserOptions: {
@@ -57,9 +62,35 @@ export default [
     },
   },
 
-  // TypeScript recommended (type-aware) + stylistic (type-aware) — TS files only
+  // TypeScript recommended (type-aware) + stylistic (type-aware) — TS files only (excluding frontend)
   ...withTsProject(tseslint.configs.recommendedTypeChecked),
   ...withTsProject(tseslint.configs.stylisticTypeChecked),
+
+  // Frontend TypeScript configuration (uses different tsconfig structure)
+  ...tseslint.configs.recommendedTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ['apps/frontend/**/*.ts', 'apps/frontend/**/*.tsx'],
+    languageOptions: {
+      ...(cfg.languageOptions ?? {}),
+      parserOptions: {
+        ...((cfg.languageOptions && cfg.languageOptions.parserOptions) ?? {}),
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        tsconfigRootDir: resolve(process.cwd(), 'apps/frontend'),
+      },
+    },
+  })),
+  ...tseslint.configs.stylisticTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ['apps/frontend/**/*.ts', 'apps/frontend/**/*.tsx'],
+    languageOptions: {
+      ...(cfg.languageOptions ?? {}),
+      parserOptions: {
+        ...((cfg.languageOptions && cfg.languageOptions.parserOptions) ?? {}),
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        tsconfigRootDir: resolve(process.cwd(), 'apps/frontend'),
+      },
+    },
+  })),
 
   // Root repo rules (apply to JS & TS)
   {
@@ -186,6 +217,34 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+
+  // Frontend React rules
+  {
+    name: 'matrix-academy:frontend-react',
+    files: ['apps/frontend/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
+  },
+
+  // Frontend-specific: Disable extension enforcement for Vite bundler resolution
+  {
+    name: 'matrix-academy:frontend-imports',
+    files: ['apps/frontend/**/*.{ts,tsx}'],
+    rules: {
+      // Vite with bundler resolution handles extensions differently
+      // Allow both with and without extensions for flexibility
+      'import/extensions': 'off',
     },
   },
 ];

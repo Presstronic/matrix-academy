@@ -1,0 +1,88 @@
+/**
+ * @file
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * @file TypeScript interfaces for API contracts
+ */
+/**
+ * Standard API error response structure
+ */
+export interface ApiErrorResponse {
+  message: string;
+  statusCode: number;
+  error?: string;
+  details?: Record<string, unknown>;
+}
+
+/**
+ * Standard API success response structure
+ */
+export interface ApiResponse<T = unknown> {
+  data: T;
+  message?: string;
+  meta?: {
+    page?: number;
+    limit?: number;
+    total?: number;
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * Paginated request parameters
+ */
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Authentication token response
+ */
+export interface AuthTokenResponse {
+  accessToken: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  tokenType?: string;
+}
+
+/**
+ * User data structure
+ */
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Login credentials
+ */
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+/**
+ * Registration data
+ */
+export interface RegistrationData {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+/**
+ * API request configuration
+ */
+export interface ApiRequestConfig {
+  withAuth?: boolean;
+  retry?: boolean;
+  timeout?: number;
+}

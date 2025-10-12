@@ -11,12 +11,16 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
-import { resolve } from 'path';
+import { dirname, resolve } from 'path';
 import tseslint from 'typescript-eslint';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const tsParserOptions = {
   project: ['./tsconfig.base.json'],
-  tsconfigRootDir: process.cwd(),
+  tsconfigRootDir: __dirname,
 };
 
 // Attach parserOptions and restrict to TS files for type-aware presets
@@ -75,7 +79,7 @@ export default [
       parserOptions: {
         ...((cfg.languageOptions && cfg.languageOptions.parserOptions) ?? {}),
         project: ['./tsconfig.app.json', './tsconfig.node.json'],
-        tsconfigRootDir: resolve(process.cwd(), 'apps/frontend'),
+        tsconfigRootDir: resolve(__dirname, 'apps/frontend'),
       },
     },
   })),
@@ -87,7 +91,7 @@ export default [
       parserOptions: {
         ...((cfg.languageOptions && cfg.languageOptions.parserOptions) ?? {}),
         project: ['./tsconfig.app.json', './tsconfig.node.json'],
-        tsconfigRootDir: resolve(process.cwd(), 'apps/frontend'),
+        tsconfigRootDir: resolve(__dirname, 'apps/frontend'),
       },
     },
   })),

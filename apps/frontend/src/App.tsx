@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import { Box, Button,Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useState } from 'react';
 
 function App() {

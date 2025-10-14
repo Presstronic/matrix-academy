@@ -20,8 +20,12 @@ describe('ProtectedRoute', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: true,
       user: { id: '1', email: 'test@example.com' },
+      isLoading: false,
+      error: null,
       login: vi.fn(),
+      register: vi.fn(),
       logout: vi.fn(),
+      refreshUser: vi.fn(),
     });
 
     const router = createMemoryRouter(
@@ -50,8 +54,12 @@ describe('ProtectedRoute', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: false,
       user: null,
+      isLoading: false,
+      error: null,
       login: vi.fn(),
+      register: vi.fn(),
       logout: vi.fn(),
+      refreshUser: vi.fn(),
     });
 
     const router = createMemoryRouter(
@@ -81,8 +89,12 @@ describe('ProtectedRoute', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: false,
       user: null,
+      isLoading: false,
+      error: null,
       login: vi.fn(),
+      register: vi.fn(),
       logout: vi.fn(),
+      refreshUser: vi.fn(),
     });
 
     const router = createMemoryRouter(

@@ -67,33 +67,25 @@ describe('AuthContext', () => {
     name: 'Test User',
   };
 
-  const mockTokens = {
-    accessToken: 'mock-access-token',
-    refreshToken: 'mock-refresh-token',
-    expiresIn: 3600,
+  const mockAuthResponse = {
+    user: mockUser,
+    expiresIn: 900,
   };
 
   beforeEach(() => {
     // Clear localStorage before each test
     localStorage.clear();
 
-    // Setup stateful token mocking
-    let currentToken: string | null = null;
-    mockGetAuthToken.mockImplementation(() => currentToken);
-    mockSetAuthToken.mockImplementation((token: string) => {
-      currentToken = token;
-    });
-    mockRemoveAuthToken.mockImplementation(() => {
-      currentToken = null;
-    });
-
-    // Clear all other mocks (preserves implementations)
+    // Clear all mocks
     mockLogin.mockClear();
     mockRegister.mockClear();
     mockLogout.mockClear();
     mockGetCurrentUser.mockClear();
     mockRefreshToken.mockClear();
+    mockGetAuthToken.mockClear();
+    mockSetAuthToken.mockClear();
     mockSetRefreshToken.mockClear();
+    mockRemoveAuthToken.mockClear();
   });
 
   afterEach(() => {
@@ -105,8 +97,9 @@ describe('AuthContext', () => {
   );
 
   describe('Initial State', () => {
-    it('should initialize with unauthenticated state when no token', async () => {
-      mockGetAuthToken.mockReturnValue(null);
+    it('should initialize with unauthenticated state when no cookies', async () => {
+      // No valid cookie - getCurrentUser will fail
+      mockGetCurrentUser.mockRejectedValue(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -119,8 +112,8 @@ describe('AuthContext', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should load user when valid token exists', async () => {
-      mockGetAuthToken.mockReturnValue('valid-token');
+    it('should load user when valid cookie exists', async () => {
+      // Valid cookie - getCurrentUser succeeds
       mockGetCurrentUser.mockResolvedValue(mockUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -134,8 +127,8 @@ describe('AuthContext', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should clear invalid token on mount', async () => {
-      mockGetAuthToken.mockReturnValue('invalid-token');
+    it('should handle invalid cookie on mount', async () => {
+      // Invalid cookie - getCurrentUser fails
       mockGetCurrentUser.mockRejectedValue(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -146,15 +139,14 @@ describe('AuthContext', () => {
 
       expect(result.current.isAuthenticated).toBe(false);
       expect(result.current.user).toBeNull();
-      expect(result.current.error).toBe('Session expired');
-      expect(mockRemoveAuthToken).toHaveBeenCalled();
+      expect(result.current.error).toBeNull();
     });
   });
 
   describe('Login', () => {
     it('should successfully login with valid credentials', async () => {
-      // Mock initial state
-      mockGetAuthToken.mockReturnValue(null);
+      // Mock initial unauthenticated state
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -162,9 +154,8 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Now setup mocks for login
-      mockLogin.mockResolvedValue(mockTokens);
-      mockGetCurrentUser.mockResolvedValue(mockUser);
+      // Now setup mocks for login - cookies are set by server
+      mockLogin.mockResolvedValue(mockAuthResponse);
 
       await act(async () => {
         await result.current.login({ email: 'test@example.com', password: 'password' });
@@ -176,13 +167,14 @@ describe('AuthContext', () => {
 
       expect(result.current.user).toEqual(mockUser);
       expect(result.current.error).toBeNull();
-      expect(mockSetAuthToken).toHaveBeenCalledWith(mockTokens.accessToken);
-      expect(mockSetRefreshToken).toHaveBeenCalledWith(mockTokens.refreshToken);
+      // Tokens are in cookies, not localStorage
+      expect(mockSetAuthToken).not.toHaveBeenCalled();
+      expect(mockSetRefreshToken).not.toHaveBeenCalled();
     });
 
     it('should handle login failure', async () => {
-      // Mock initial state
-      mockGetAuthToken.mockReturnValue(null);
+      // Mock initial unauthenticated state
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -210,8 +202,8 @@ describe('AuthContext', () => {
     });
 
     it('should set loading state during login', async () => {
-      // Mock initial state
-      mockGetAuthToken.mockReturnValue(null);
+      // Mock initial unauthenticated state
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -219,13 +211,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      let resolveLogin: (value: typeof mockTokens) => void;
-      const loginPromise = new Promise<typeof mockTokens>((resolve) => {
+      let resolveLogin: (value: typeof mockAuthResponse) => void;
+      const loginPromise = new Promise<typeof mockAuthResponse>((resolve) => {
         resolveLogin = resolve;
       });
 
       mockLogin.mockReturnValue(loginPromise);
-      mockGetCurrentUser.mockResolvedValue(mockUser);
 
       act(() => {
         void result.current.login({ email: 'test@example.com', password: 'password' });
@@ -238,7 +229,7 @@ describe('AuthContext', () => {
 
       // Resolve login
       act(() => {
-        resolveLogin!(mockTokens);
+        resolveLogin!(mockAuthResponse);
       });
 
       await waitFor(() => {
@@ -249,8 +240,8 @@ describe('AuthContext', () => {
 
   describe('Register', () => {
     it('should successfully register new user', async () => {
-      // Mock initial state
-      mockGetAuthToken.mockReturnValue(null);
+      // Mock initial unauthenticated state
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -258,9 +249,8 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Now setup mocks for register
-      mockRegister.mockResolvedValue(mockTokens);
-      mockGetCurrentUser.mockResolvedValue(mockUser);
+      // Now setup mocks for register - cookies are set by server
+      mockRegister.mockResolvedValue(mockAuthResponse);
 
       await act(async () => {
         await result.current.register({
@@ -275,12 +265,13 @@ describe('AuthContext', () => {
       });
 
       expect(result.current.user).toEqual(mockUser);
-      expect(mockSetAuthToken).toHaveBeenCalledWith(mockTokens.accessToken);
+      // Tokens are in cookies, not localStorage
+      expect(mockSetAuthToken).not.toHaveBeenCalled();
     });
 
     it('should handle registration failure', async () => {
-      // Mock initial state
-      mockGetAuthToken.mockReturnValue(null);
+      // Mock initial unauthenticated state
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -312,8 +303,7 @@ describe('AuthContext', () => {
 
   describe('Logout', () => {
     it('should successfully logout user', async () => {
-      // Setup authenticated state
-      mockGetAuthToken.mockReturnValue('valid-token');
+      // Setup authenticated state with valid cookie
       mockGetCurrentUser.mockResolvedValue(mockUser);
       mockLogout.mockResolvedValue();
 
@@ -333,12 +323,13 @@ describe('AuthContext', () => {
 
       expect(result.current.user).toBeNull();
       expect(result.current.error).toBeNull();
-      expect(mockRemoveAuthToken).toHaveBeenCalled();
+      expect(mockLogout).toHaveBeenCalled();
+      // Cookies are cleared by server, not client
+      expect(mockRemoveAuthToken).not.toHaveBeenCalled();
     });
 
     it('should clear state even if logout API call fails', async () => {
-      // Setup authenticated state
-      mockGetAuthToken.mockReturnValue('valid-token');
+      // Setup authenticated state with valid cookie
       mockGetCurrentUser.mockResolvedValue(mockUser);
       mockLogout.mockRejectedValue(new Error('Network error'));
 
@@ -357,14 +348,14 @@ describe('AuthContext', () => {
       });
 
       expect(result.current.user).toBeNull();
-      expect(mockRemoveAuthToken).toHaveBeenCalled();
+      // Cookies are cleared by server, not client
+      expect(mockRemoveAuthToken).not.toHaveBeenCalled();
     });
   });
 
   describe('Refresh User', () => {
     it('should refresh user data when authenticated', async () => {
-      // Setup authenticated state
-      mockGetAuthToken.mockReturnValue('valid-token');
+      // Setup authenticated state with valid cookie
       mockGetCurrentUser.mockResolvedValueOnce(mockUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -384,7 +375,8 @@ describe('AuthContext', () => {
     });
 
     it('should do nothing when not authenticated', async () => {
-      mockGetAuthToken.mockReturnValue(null);
+      // No valid cookie
+      mockGetCurrentUser.mockRejectedValueOnce(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -396,13 +388,14 @@ describe('AuthContext', () => {
         await result.current.refreshUser();
       });
 
-      expect(mockGetCurrentUser).toHaveBeenCalledTimes(0);
+      // Only called once during initialization, not again during refreshUser
+      expect(mockGetCurrentUser).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('useUser Hook', () => {
     it('should return user when authenticated', async () => {
-      mockGetAuthToken.mockReturnValue('valid-token');
+      // Valid cookie
       mockGetCurrentUser.mockResolvedValue(mockUser);
 
       const { result } = renderHook(() => useUser(), { wrapper });
@@ -413,7 +406,8 @@ describe('AuthContext', () => {
     });
 
     it('should return null when not authenticated', async () => {
-      mockGetAuthToken.mockReturnValue(null);
+      // No valid cookie
+      mockGetCurrentUser.mockRejectedValue(new Error('Unauthorized'));
 
       const { result } = renderHook(() => useUser(), { wrapper });
 

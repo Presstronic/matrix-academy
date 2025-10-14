@@ -3,27 +3,23 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * @file auth.controller.spec.ts — Matrix Academy (interactive learning platform)
- * @author Your Name <you@example.com>
- * @copyright 2025 Presstronic Studios LLC
+ * @file auth.controller.spec.ts — Matrix Academy backend tests (type-safe, no `any`)
  */
 import { jest } from '@jest/globals';
-import { Test, type TestingModule } from '@nestjs/testing';
-import type { Request } from 'express';
+import { Test } from '@nestjs/testing';
+import type { Request, Response } from 'express';
 
+import { CsrfService } from '../common/services/csrf.service.js';
 import { Role } from '../enums/role.enum.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
-import type { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto.js';
-import type { LoginDto } from './dto/login.dto.js';
-import type { RefreshDto } from './dto/refresh.dto.js';
-import type { RegisterDto } from './dto/register.dto.js';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: jest.Mocked<AuthService>;
+  // let csrfService: jest.Mocked<CsrfService>;
 
-  const mockAuthResponse: AuthResponseDto = {
+  const mockAuthResponse = {
     accessToken: 'mock-access-token',
     refreshToken: 'mock-refresh-token',
     user: {
@@ -40,7 +36,7 @@ describe('AuthController', () => {
     expiresIn: 900,
   };
 
-  const mockUserResponse: UserResponseDto = {
+  const mockUserResponse = {
     id: 'test-user-id',
     email: 'test@example.com',
     firstName: 'Test',
@@ -52,11 +48,24 @@ describe('AuthController', () => {
     createdAt: new Date(),
   };
 
-  const mockRequest = {
-    headers: {
-      'user-agent': 'test-user-agent',
+  // Minimal realistic mock of an Express Request
+  const baseRequest = {
+    headers: { 'user-agent': 'test-user-agent' } as Record<string, string>,
+    cookies: {} as Record<string, string>,
+    get(name: string): string | undefined {
+      return this.headers[name.toLowerCase()];
     },
-  } as Request;
+    header(name: string): string | undefined {
+      return this.headers[name.toLowerCase()];
+    },
+  };
+
+  // Minimal realistic mock of an Express Response
+  const makeMockResponse = (): Response =>
+    ({
+      cookie: jest.fn(),
+      clearCookie: jest.fn(),
+    }) as unknown as Response;
 
   beforeEach(async () => {
     const mockAuthService = {
@@ -65,20 +74,24 @@ describe('AuthController', () => {
       refresh: jest.fn(),
       logout: jest.fn(),
       getMe: jest.fn(),
-    };
+    } as unknown as AuthService;
 
-    const module: TestingModule = await Test.createTestingModule({
+    const mockCsrfService = {
+      generateToken: jest.fn(() => 'csrf-123'),
+      verifyToken: jest.fn(),
+    } as unknown as CsrfService;
+
+    const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
-        },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: CsrfService, useValue: mockCsrfService },
       ],
     }).compile();
 
-    controller = module.get<AuthController>(AuthController);
-    authService = module.get(AuthService);
+    controller = moduleRef.get(AuthController);
+    authService = moduleRef.get(AuthService);
+    // csrfService = moduleRef.get(CsrfService);
   });
 
   afterEach(() => {
@@ -86,166 +99,135 @@ describe('AuthController', () => {
   });
 
   describe('register', () => {
-    it('should register a new user', async () => {
-      const registerDto: RegisterDto = {
+    it('registers user, sets cookies, returns payload', async () => {
+      const registerDto = {
         email: 'newuser@example.com',
         password: 'Password123!',
         firstName: 'New',
         lastName: 'User',
-        tenantId: 'test-tenant-id',
+        tenantId: 'tenant-1',
       };
-
+      const res = makeMockResponse();
       authService.register.mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.register(registerDto);
+      const result = await controller.register(registerDto, res);
 
       expect(authService.register).toHaveBeenCalledWith(registerDto);
-      expect(result).toEqual(mockAuthResponse);
-    });
-
-    it('should return access and refresh tokens', async () => {
-      const registerDto: RegisterDto = {
-        email: 'newuser@example.com',
-        password: 'Password123!',
-        tenantId: 'test-tenant-id',
-      };
-
-      authService.register.mockResolvedValue(mockAuthResponse);
-
-      const result = await controller.register(registerDto);
-
-      expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
-      expect(result).toHaveProperty('user');
-      expect(result).toHaveProperty('expiresIn');
+      expect(res.cookie).toHaveBeenCalledWith(
+        'access_token',
+        mockAuthResponse.accessToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        'refresh_token',
+        mockAuthResponse.refreshToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith('csrf_token', 'csrf-123', expect.any(Object));
+      expect(result).toEqual({
+        user: mockAuthResponse.user,
+        expiresIn: mockAuthResponse.expiresIn,
+      });
     });
   });
 
   describe('login', () => {
-    it('should login with valid credentials', async () => {
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'Password123!',
-      };
+    it('logs in, sets cookies, returns payload', async () => {
+      const loginDto = { email: 'test@example.com', password: 'Password123!' };
       const ipAddress = '127.0.0.1';
-
+      const req = { ...baseRequest };
+      const res = makeMockResponse();
       authService.login.mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.login(loginDto, mockRequest, ipAddress);
+      const result = await controller.login(loginDto, req as unknown as Request, ipAddress, res);
 
       expect(authService.login).toHaveBeenCalledWith(loginDto, {
         userAgent: 'test-user-agent',
-        ipAddress,
+        ipAddress: '127.0.0.1',
       });
-      expect(result).toEqual(mockAuthResponse);
-    });
-
-    it('should pass metadata to auth service', async () => {
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'Password123!',
-      };
-      const ipAddress = '192.168.1.1';
-
-      authService.login.mockResolvedValue(mockAuthResponse);
-
-      await controller.login(loginDto, mockRequest, ipAddress);
-
-      expect(authService.login).toHaveBeenCalledWith(loginDto, {
-        userAgent: 'test-user-agent',
-        ipAddress: '192.168.1.1',
+      expect(res.cookie).toHaveBeenCalledWith(
+        'access_token',
+        mockAuthResponse.accessToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        'refresh_token',
+        mockAuthResponse.refreshToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith('csrf_token', 'csrf-123', expect.any(Object));
+      expect(result).toEqual({
+        user: mockAuthResponse.user,
+        expiresIn: mockAuthResponse.expiresIn,
       });
     });
   });
 
   describe('refresh', () => {
-    it('should refresh tokens successfully', async () => {
-      const refreshDto: RefreshDto = {
-        refreshToken: 'valid-refresh-token',
-      };
+    it('refreshes tokens, sets cookies, returns payload', async () => {
       const ipAddress = '127.0.0.1';
-
+      const req = { ...baseRequest, cookies: { refresh_token: 'valid-refresh-token' } };
+      const res = makeMockResponse();
       authService.refresh.mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.refresh(refreshDto, mockRequest, ipAddress);
+      const result = await controller.refresh(req as unknown as Request, ipAddress, res);
 
-      expect(authService.refresh).toHaveBeenCalledWith(refreshDto.refreshToken, {
+      expect(authService.refresh).toHaveBeenCalledWith('valid-refresh-token', {
         userAgent: 'test-user-agent',
         ipAddress,
       });
-      expect(result).toEqual(mockAuthResponse);
+      expect(res.cookie).toHaveBeenCalledWith(
+        'access_token',
+        mockAuthResponse.accessToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        'refresh_token',
+        mockAuthResponse.refreshToken,
+        expect.any(Object),
+      );
+      expect(res.cookie).toHaveBeenCalledWith('csrf_token', 'csrf-123', expect.any(Object));
+      expect(result).toEqual({
+        user: mockAuthResponse.user,
+        expiresIn: mockAuthResponse.expiresIn,
+      });
     });
 
-    it('should pass metadata to auth service', async () => {
-      const refreshDto: RefreshDto = {
-        refreshToken: 'valid-refresh-token',
-      };
-      const ipAddress = '10.0.0.1';
-
-      authService.refresh.mockResolvedValue(mockAuthResponse);
-
-      await controller.refresh(refreshDto, mockRequest, ipAddress);
-
-      expect(authService.refresh).toHaveBeenCalledWith(refreshDto.refreshToken, {
-        userAgent: 'test-user-agent',
-        ipAddress: '10.0.0.1',
-      });
+    it('throws if refresh cookie missing', async () => {
+      const ipAddress = '127.0.0.1';
+      const req = { ...baseRequest, cookies: {} };
+      const res = makeMockResponse();
+      await expect(controller.refresh(req as unknown as Request, ipAddress, res)).rejects.toThrow(
+        'Refresh token not found',
+      );
     });
   });
 
   describe('logout', () => {
-    it('should logout successfully', async () => {
+    it('clears cookies and calls service', async () => {
       const userId = 'test-user-id';
-      const refreshDto: RefreshDto = {
-        refreshToken: 'valid-refresh-token',
-      };
-
+      const req = { ...baseRequest, cookies: { refresh_token: 'token-abc' } };
+      const res = makeMockResponse();
       authService.logout.mockResolvedValue(undefined);
 
-      const result = await controller.logout(userId, refreshDto);
-
-      expect(authService.logout).toHaveBeenCalledWith(userId, refreshDto.refreshToken);
-      expect(result).toBeUndefined();
-    });
-
-    it('should call logout with correct parameters', async () => {
-      const userId = 'user-123';
-      const refreshDto: RefreshDto = {
-        refreshToken: 'token-abc',
-      };
-
-      authService.logout.mockResolvedValue(undefined);
-
-      await controller.logout(userId, refreshDto);
+      const result = await controller.logout(userId, req as unknown as Request, res);
 
       expect(authService.logout).toHaveBeenCalledWith(userId, 'token-abc');
-      expect(authService.logout).toHaveBeenCalledTimes(1);
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token', { path: '/' });
+      expect(res.clearCookie).toHaveBeenCalledWith('refresh_token', { path: '/' });
+      expect(res.clearCookie).toHaveBeenCalledWith('csrf_token', { path: '/' });
+      expect(result).toBeUndefined();
     });
   });
 
   describe('getMe', () => {
-    it('should return current user information', async () => {
+    it('returns current user', async () => {
       const userId = 'test-user-id';
-
       authService.getMe.mockResolvedValue(mockUserResponse);
 
       const result = await controller.getMe(userId);
-
       expect(authService.getMe).toHaveBeenCalledWith(userId);
       expect(result).toEqual(mockUserResponse);
-    });
-
-    it('should return user without sensitive data', async () => {
-      const userId = 'test-user-id';
-
-      authService.getMe.mockResolvedValue(mockUserResponse);
-
-      const result = await controller.getMe(userId);
-
-      expect(result).not.toHaveProperty('password');
-      expect(result).toHaveProperty('id');
-      expect(result).toHaveProperty('email');
-      expect(result).toHaveProperty('roles');
     });
   });
 });

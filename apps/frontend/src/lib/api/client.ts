@@ -24,7 +24,17 @@ const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
- * Get authentication token from storage
+ * Get CSRF token from cookie
+ */
+function getCsrfToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = /csrf_token=([^;]+)/.exec(document.cookie);
+  return match ? match[1] : null;
+}
+
+/**
+ * Get authentication token from storage (deprecated - will be removed)
+ * Tokens are now stored in HttpOnly cookies
  */
 export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -32,7 +42,8 @@ export function getAuthToken(): string | null {
 }
 
 /**
- * Set authentication token in storage
+ * Set authentication token in storage (deprecated - will be removed)
+ * Tokens are now stored in HttpOnly cookies
  */
 export function setAuthToken(token: string): void {
   if (typeof window === 'undefined') return;
@@ -40,7 +51,8 @@ export function setAuthToken(token: string): void {
 }
 
 /**
- * Remove authentication token from storage
+ * Remove authentication token from storage (deprecated - will be removed)
+ * Tokens are now stored in HttpOnly cookies
  */
 export function removeAuthToken(): void {
   if (typeof window === 'undefined') return;
@@ -49,7 +61,8 @@ export function removeAuthToken(): void {
 }
 
 /**
- * Get refresh token from storage
+ * Get refresh token from storage (deprecated - will be removed)
+ * Tokens are now stored in HttpOnly cookies
  */
 export function getRefreshToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -57,7 +70,8 @@ export function getRefreshToken(): string | null {
 }
 
 /**
- * Set refresh token in storage
+ * Set refresh token in storage (deprecated - will be removed)
+ * Tokens are now stored in HttpOnly cookies
  */
 export function setRefreshToken(token: string): void {
   if (typeof window === 'undefined') return;
@@ -74,6 +88,7 @@ function createApiClient(): AxiosInstance {
     headers: {
       'Content-Type': 'application/json',
     },
+    withCredentials: true, // Enable sending cookies with requests
   });
 
   // Configure retry logic
@@ -98,13 +113,24 @@ function createApiClient(): AxiosInstance {
     },
   });
 
-  // Request interceptor: Add authentication token
+  // Request interceptor: Add CSRF token for state-changing requests
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+      // Add CSRF token for state-changing methods
+      const method = config.method?.toUpperCase();
+      if (method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+          config.headers['X-CSRF-Token'] = csrfToken;
+        }
+      }
+
+      // Keep Authorization header for backward compatibility during migration
       const token = getAuthToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
       return config;
     },
     (error: Error) => {

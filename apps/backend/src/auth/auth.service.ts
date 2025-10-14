@@ -7,11 +7,7 @@
  * @author Your Name <you@example.com>
  * @copyright 2025 Presstronic Studios LLC
  */
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,7 +20,7 @@ import { LessThan } from 'typeorm';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { RefreshToken, User } from '../database/entities/index.js';
 import { Role } from '../enums/role.enum.js';
-import type { AuthResponseDto} from './dto/auth-response.dto.js';
+import type { InternalAuthResponse } from './dto/auth-response.dto.js';
 import { UserResponseDto } from './dto/auth-response.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { RegisterDto } from './dto/register.dto.js';
@@ -41,7 +37,7 @@ export class AuthService {
     private configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+  async register(registerDto: RegisterDto): Promise<InternalAuthResponse> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -50,10 +46,7 @@ export class AuthService {
       throw new BadRequestException('User with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(
-      registerDto.password,
-      this.SALT_ROUNDS,
-    );
+    const hashedPassword = await bcrypt.hash(registerDto.password, this.SALT_ROUNDS);
 
     const user = this.userRepository.create({
       email: registerDto.email,
@@ -70,7 +63,7 @@ export class AuthService {
     return this.generateAuthResponse(savedUser);
   }
 
-  async login(loginDto: LoginDto, metadata?: TokenMetadata): Promise<AuthResponseDto> {
+  async login(loginDto: LoginDto, metadata?: TokenMetadata): Promise<InternalAuthResponse> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
     });
@@ -83,10 +76,7 @@ export class AuthService {
       throw new UnauthorizedException('Account is inactive');
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
@@ -98,7 +88,10 @@ export class AuthService {
     return this.generateAuthResponse(user, metadata);
   }
 
-  async refresh(refreshTokenString: string, metadata?: TokenMetadata): Promise<AuthResponseDto> {
+  async refresh(
+    refreshTokenString: string,
+    metadata?: TokenMetadata,
+  ): Promise<InternalAuthResponse> {
     const refreshToken = await this.refreshTokenRepository.findOne({
       where: { token: refreshTokenString },
       relations: ['user'],
@@ -157,7 +150,7 @@ export class AuthService {
   private async generateAuthResponse(
     user: User,
     metadata?: TokenMetadata,
-  ): Promise<AuthResponseDto> {
+  ): Promise<InternalAuthResponse> {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user, metadata);
 
@@ -189,10 +182,7 @@ export class AuthService {
     return jwt.sign(payload, secret, { expiresIn } as SignOptions);
   }
 
-  private async generateRefreshToken(
-    user: User,
-    metadata?: TokenMetadata,
-  ): Promise<RefreshToken> {
+  private async generateRefreshToken(user: User, metadata?: TokenMetadata): Promise<RefreshToken> {
     const payload = {
       sub: user.id,
       type: 'refresh',

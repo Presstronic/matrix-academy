@@ -40,13 +40,23 @@ export interface PaginationParams {
 }
 
 /**
- * Authentication token response
+ * Authentication token response (legacy - tokens in body)
+ * @deprecated Tokens are now in HttpOnly cookies
  */
-export interface AuthTokenResponse {
+export interface LegacyAuthTokenResponse {
   accessToken: string;
   refreshToken?: string;
   expiresIn?: number;
   tokenType?: string;
+}
+
+/**
+ * Authentication response (cookie-based)
+ * Tokens are stored in HttpOnly cookies on the client
+ */
+export interface AuthTokenResponse {
+  user: User;
+  expiresIn: number;
 }
 
 /**

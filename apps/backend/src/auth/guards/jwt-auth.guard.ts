@@ -3,12 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
@@ -41,7 +36,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractToken(request);
 
     if (!token) {
       throw new UnauthorizedException('No authentication token provided');
@@ -75,9 +70,17 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   /**
-   * Extract JWT token from Authorization header
+   * Extract JWT token from cookies or Authorization header
+   * Priority: 1. Cookie, 2. Authorization header (for backward compatibility)
    */
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractToken(request: Request): string | undefined {
+    // First, try to get token from cookie (preferred method)
+    const tokenFromCookie = request.cookies?.access_token as string | undefined;
+    if (tokenFromCookie) {
+      return tokenFromCookie as string | undefined;
+    }
+
+    // Fall back to Authorization header
     const authHeader = request.headers.authorization;
     if (!authHeader) {
       return undefined;

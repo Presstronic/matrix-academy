@@ -221,7 +221,7 @@ window.PR_SHOULD_USE_CONTINUATION = true;
           }
         }
       }
-      for (var ak = 0, am = 0; ak < ah; ++ak) {
+      for (var ak = 0; ak < ah; ++ak) {
         if ('^' === aj[ak] && '^' !== aj[ak + 1]) {
           aj[ak] = '';
         }

@@ -639,7 +639,7 @@ window.PR_SHOULD_USE_CONTINUATION = true;
       X[ar++] = ab;
       aq = W;
     }
-    Y = X.length = ar;
+    X.length = ar;
     var ae = null;
     while (ah < T) {
       var af = aa[ah];

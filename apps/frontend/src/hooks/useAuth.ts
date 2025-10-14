@@ -2,37 +2,29 @@
  * @file
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * @file Authentication hooks
  */
-import { useState } from 'react';
+import { useContext } from 'react';
 
-interface AuthState {
-  isAuthenticated: boolean;
-  user: { id: string; email: string } | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+import { AuthContext } from '@/contexts/AuthContext';
+import type { User } from '@/lib/api';
+
+/**
+ * Hook to access authentication context
+ */
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }
 
 /**
- * Authentication hook
- * TODO: Implement real authentication logic when auth system is ready
+ * Hook to access user data (convenience hook)
  */
-export function useAuth(): AuthState {
-  const [isAuthenticated] = useState(false);
-  const [user] = useState<{ id: string; email: string } | null>(null);
-
-  const login = (_email: string, _password: string) => {
-    // TODO: Implement login logic
-    return Promise.reject(new Error('Authentication not yet implemented'));
-  };
-
-  const logout = () => {
-    // TODO: Implement logout logic
-  };
-
-  return {
-    isAuthenticated,
-    user,
-    login,
-    logout,
-  };
+export function useUser(): User | null {
+  const { user } = useAuth();
+  return user;
 }

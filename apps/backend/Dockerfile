@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Base stage - common setup for all stages
-FROM node:24-alpine AS base
+FROM node:22-alpine AS base
 
 # Install pnpm
 ENV PNPM_HOME="/pnpm"
@@ -46,7 +46,7 @@ FROM dependencies AS build
 RUN pnpm --filter=@matrix-academy/backend build
 
 # Production stage - minimal runtime image
-FROM node:24-alpine AS production
+FROM node:22-alpine AS production
 
 # Install pnpm (only what's needed for production)
 ENV PNPM_HOME="/pnpm"

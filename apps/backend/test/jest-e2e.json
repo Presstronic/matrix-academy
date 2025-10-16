@@ -4,6 +4,7 @@
   "testEnvironment": "node",
   "rootDir": "..",
   "testRegex": ".e2e-spec.ts$",
+  "forceExit": true,
   "moduleFileExtensions": ["ts", "js", "json"],
   "extensionsToTreatAsEsm": [".ts"],
   "moduleNameMapper": {

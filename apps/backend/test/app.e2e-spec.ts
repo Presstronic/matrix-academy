@@ -3,11 +3,13 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+import { afterAll, afterEach, beforeAll, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
 import { Role } from '../src/enums/role.enum.js';
 import { closeTestApp, createTestApp } from './utils/test-app.js';
+import { withCsrf } from './utils/test-csrf.js';
 import { clearDatabase, closeTestDatabase, createTestDatabase } from './utils/test-db.js';
 import { generateExpiredToken, generateTestToken, TEST_USERS } from './utils/test-jwt.js';
 
@@ -60,12 +62,10 @@ describe('AppController (e2e)', () => {
 
   describe('/echo (POST)', () => {
     const validToken = generateTestToken(TEST_USERS.user);
+    const expiredToken = generateExpiredToken(TEST_USERS.user);
 
     it('should reject request without authentication token', () => {
-      return request(app.getHttpServer())
-        .post('/echo')
-        .send({ message: 'test' })
-        .expect(401);
+      return request(app.getHttpServer()).post('/echo').send({ message: 'test' }).expect(401);
     });
 
     it('should reject request with invalid token', () => {
@@ -77,8 +77,6 @@ describe('AppController (e2e)', () => {
     });
 
     it('should reject request with expired token', () => {
-      const expiredToken = generateExpiredToken(TEST_USERS.user);
-
       return request(app.getHttpServer())
         .post('/echo')
         .set('Authorization', `Bearer ${expiredToken}`)
@@ -87,10 +85,12 @@ describe('AppController (e2e)', () => {
     });
 
     it('should echo message with valid token', () => {
-      return request(app.getHttpServer())
-        .post('/echo')
-        .set('Authorization', `Bearer ${validToken}`)
-        .send({ message: 'Hello World' })
+      return withCsrf(
+        request(app.getHttpServer())
+          .post('/echo')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ message: 'Hello World' }),
+      )
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('success', true);
@@ -103,10 +103,12 @@ describe('AppController (e2e)', () => {
     });
 
     it('should echo message with age when provided', () => {
-      return request(app.getHttpServer())
-        .post('/echo')
-        .set('Authorization', `Bearer ${validToken}`)
-        .send({ message: 'Hello World', age: 25 })
+      return withCsrf(
+        request(app.getHttpServer())
+          .post('/echo')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ message: 'Hello World', age: 25 }),
+      )
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('success', true);
@@ -119,18 +121,21 @@ describe('AppController (e2e)', () => {
     });
 
     it('should validate message is required', () => {
-      return request(app.getHttpServer())
-        .post('/echo')
-        .set('Authorization', `Bearer ${validToken}`)
-        .send({})
-        .expect(400);
+      return withCsrf(
+        request(app.getHttpServer())
+          .post('/echo')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({}),
+      ).expect(400);
     });
 
     it('should coerce numeric message to string', () => {
-      return request(app.getHttpServer())
-        .post('/echo')
-        .set('Authorization', `Bearer ${validToken}`)
-        .send({ message: 123 })
+      return withCsrf(
+        request(app.getHttpServer())
+          .post('/echo')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ message: 123 }),
+      )
         .expect(200)
         .expect((res) => {
           expect(res.body.data.echo.message).toBe('123');
@@ -140,11 +145,12 @@ describe('AppController (e2e)', () => {
     it('should validate age range', () => {
       const validToken2 = generateTestToken({ email: 'range@test.com', roles: [Role.USER] });
 
-      return request(app.getHttpServer())
-        .post('/echo')
-        .set('Authorization', `Bearer ${validToken2}`)
-        .send({ message: 'test', age: -1 })
-        .expect(400);
+      return withCsrf(
+        request(app.getHttpServer())
+          .post('/echo')
+          .set('Authorization', `Bearer ${validToken2}`)
+          .send({ message: 'test', age: -1 }),
+      ).expect(400);
     });
   });
 });

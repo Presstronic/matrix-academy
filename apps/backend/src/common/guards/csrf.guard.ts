@@ -9,7 +9,7 @@ import { CanActivate, type ExecutionContext, ForbiddenException, Injectable } fr
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 
-import { PUBLIC_KEY } from '../../auth/decorators/public.decorator.js';
+import { IS_PUBLIC_KEY } from '../../auth/decorators/public.decorator.js';
 
 /**
  * CSRF Token Guard
@@ -21,7 +21,7 @@ export class CsrfGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Check if route is marked as public
-    const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);

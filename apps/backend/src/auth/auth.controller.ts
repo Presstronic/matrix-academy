@@ -177,8 +177,15 @@ export class AuthController {
    * Clear all authentication cookies
    */
   private clearAuthCookies(res: Response): void {
-    res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/' });
-    res.clearCookie('csrf_token', { path: '/' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      path: '/',
+      sameSite: 'strict' as const,
+      secure: isProduction,
+    };
+
+    res.clearCookie('access_token', cookieOptions);
+    res.clearCookie('refresh_token', cookieOptions);
+    res.clearCookie('csrf_token', cookieOptions);
   }
 }

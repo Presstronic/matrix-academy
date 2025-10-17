@@ -9,20 +9,22 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
-import { ThrottlerExceptionFilter } from './common/guards/throttler-exception.filter.js';
+import { HttpExceptionFilter, ThrottlerExceptionFilter } from './common/filters/index.js';
 
 async function bootstrap(): Promise<void> {
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()) ?? [],
       credentials: true,
     },
   });
+
+  // Enable cookie parser
+  app.use(cookieParser());
 
   // Configure Helmet based on environment
   const isProduction = process.env.NODE_ENV === 'production';

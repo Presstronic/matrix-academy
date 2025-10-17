@@ -14,7 +14,10 @@ import type { Role } from '../../enums/role.enum.js';
 
 @Exclude()
 export class UserResponseDto {
-  @ApiProperty({ description: 'User unique identifier', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiProperty({
+    description: 'User unique identifier',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
   @Expose()
   id!: string;
 
@@ -42,7 +45,11 @@ export class UserResponseDto {
   @Expose()
   isActive!: boolean;
 
-  @ApiProperty({ description: 'Email verification timestamp', example: '2025-01-01T00:00:00.000Z', required: false })
+  @ApiProperty({
+    description: 'Email verification timestamp',
+    example: '2025-01-01T00:00:00.000Z',
+    required: false,
+  })
   @Expose()
   emailVerifiedAt?: Date;
 
@@ -51,13 +58,20 @@ export class UserResponseDto {
   createdAt!: Date;
 }
 
+/**
+ * Internal auth response with tokens (used for setting cookies)
+ */
+export interface InternalAuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserResponseDto;
+  expiresIn: number;
+}
+
+/**
+ * Public API auth response (tokens are in HttpOnly cookies)
+ */
 export class AuthResponseDto {
-  @ApiProperty({ description: 'JWT access token', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-  accessToken!: string;
-
-  @ApiProperty({ description: 'Refresh token for obtaining new access tokens', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-  refreshToken!: string;
-
   @ApiProperty({ description: 'User information', type: UserResponseDto })
   user!: UserResponseDto;
 

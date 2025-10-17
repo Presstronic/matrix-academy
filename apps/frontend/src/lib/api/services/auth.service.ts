@@ -5,7 +5,7 @@
  *
  * @file Authentication API service
  */
-import { post } from '../client';
+import { get, post } from '../client';
 import type {
   ApiResponse,
   AuthTokenResponse,
@@ -16,6 +16,7 @@ import type {
 
 /**
  * Login with email and password
+ * Tokens are set as HttpOnly cookies by the server
  */
 export async function login(credentials: LoginCredentials): Promise<AuthTokenResponse> {
   const response = await post<ApiResponse<AuthTokenResponse>>('/auth/login', credentials);
@@ -24,6 +25,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthTokenRes
 
 /**
  * Register a new user
+ * Tokens are set as HttpOnly cookies by the server
  */
 export async function register(data: RegistrationData): Promise<AuthTokenResponse> {
   const response = await post<ApiResponse<AuthTokenResponse>>('/auth/register', data);
@@ -41,17 +43,16 @@ export async function logout(): Promise<void> {
  * Get current user profile
  */
 export async function getCurrentUser(): Promise<User> {
-  const response = await post<ApiResponse<User>>('/auth/me');
+  const response = await get<ApiResponse<User>>('/auth/me');
   return response.data;
 }
 
 /**
  * Refresh authentication token
+ * Refresh token is automatically sent via HttpOnly cookie
  */
-export async function refreshToken(refreshToken: string): Promise<AuthTokenResponse> {
-  const response = await post<ApiResponse<AuthTokenResponse>>('/auth/refresh', {
-    refreshToken,
-  });
+export async function refreshToken(): Promise<AuthTokenResponse> {
+  const response = await post<ApiResponse<AuthTokenResponse>>('/auth/refresh');
   return response.data;
 }
 

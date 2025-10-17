@@ -14,6 +14,17 @@ import * as authService from './auth.service';
 describe('Auth Service', () => {
   let mock: MockAdapter;
 
+  // Helper to wrap response in API envelope
+  const wrapInEnvelope = <T>(data: T) => ({
+    success: true,
+    data,
+    metadata: {
+      timestamp: new Date().toISOString(),
+      correlationId: 'test-correlation-id',
+      version: '1.0',
+    },
+  });
+
   beforeEach(() => {
     mock = new MockAdapter(apiClient);
   });
@@ -25,20 +36,22 @@ describe('Auth Service', () => {
   describe('login', () => {
     it('should successfully login with credentials', async () => {
       const credentials = { email: 'test@example.com', password: 'password123' };
-      const tokenResponse = {
-        data: {
-          accessToken: 'test-access-token',
-          refreshToken: 'test-refresh-token',
-          expiresIn: 3600,
+      const authResponse = {
+        user: {
+          id: '1',
+          email: 'test@example.com',
+          name: 'Test User',
         },
+        expiresIn: 900,
       };
 
-      mock.onPost('/auth/login', credentials).reply(200, tokenResponse);
+      mock.onPost('/auth/login', credentials).reply(200, wrapInEnvelope(authResponse));
 
       const result = await authService.login(credentials);
 
-      expect(result).toEqual(tokenResponse.data);
-      expect(result.accessToken).toBe('test-access-token');
+      expect(result).toEqual(authResponse);
+      expect(result.user.email).toBe('test@example.com');
+      expect(result.expiresIn).toBe(900);
     });
 
     it('should handle login failure', async () => {
@@ -60,18 +73,21 @@ describe('Auth Service', () => {
         password: 'password123',
         name: 'New User',
       };
-      const tokenResponse = {
-        data: {
-          accessToken: 'test-access-token',
-          refreshToken: 'test-refresh-token',
+      const authResponse = {
+        user: {
+          id: '2',
+          email: 'new@example.com',
+          name: 'New User',
         },
+        expiresIn: 900,
       };
 
-      mock.onPost('/auth/register', registrationData).reply(201, tokenResponse);
+      mock.onPost('/auth/register', registrationData).reply(201, wrapInEnvelope(authResponse));
 
       const result = await authService.register(registrationData);
 
-      expect(result).toEqual(tokenResponse.data);
+      expect(result).toEqual(authResponse);
+      expect(result.user.email).toBe('new@example.com');
     });
 
     it('should handle registration validation errors', async () => {
@@ -99,25 +115,23 @@ describe('Auth Service', () => {
 
   describe('getCurrentUser', () => {
     it('should get current user profile', async () => {
-      const userResponse = {
-        data: {
-          id: '1',
-          email: 'test@example.com',
-          name: 'Test User',
-          role: 'user',
-        },
+      const user = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'user',
       };
 
-      mock.onPost('/auth/me').reply(200, userResponse);
+      mock.onGet('/auth/me').reply(200, wrapInEnvelope(user));
 
       const result = await authService.getCurrentUser();
 
-      expect(result).toEqual(userResponse.data);
+      expect(result).toEqual(user);
       expect(result.email).toBe('test@example.com');
     });
 
     it('should handle unauthorized access', async () => {
-      mock.onPost('/auth/me').reply(401, {
+      mock.onGet('/auth/me').reply(401, {
         message: 'Unauthorized',
         statusCode: 401,
       });
@@ -128,21 +142,23 @@ describe('Auth Service', () => {
 
   describe('refreshToken', () => {
     it('should refresh authentication token', async () => {
-      const refreshToken = 'old-refresh-token';
-      const tokenResponse = {
-        data: {
-          accessToken: 'new-access-token',
-          refreshToken: 'new-refresh-token',
-          expiresIn: 3600,
+      const authResponse = {
+        user: {
+          id: '1',
+          email: 'test@example.com',
+          name: 'Test User',
         },
+        expiresIn: 900,
       };
 
-      mock.onPost('/auth/refresh', { refreshToken }).reply(200, tokenResponse);
+      // Refresh token is sent via HttpOnly cookie, not in body
+      mock.onPost('/auth/refresh').reply(200, wrapInEnvelope(authResponse));
 
-      const result = await authService.refreshToken(refreshToken);
+      const result = await authService.refreshToken();
 
-      expect(result).toEqual(tokenResponse.data);
-      expect(result.accessToken).toBe('new-access-token');
+      expect(result).toEqual(authResponse);
+      expect(result.user.email).toBe('test@example.com');
+      expect(result.expiresIn).toBe(900);
     });
 
     it('should handle invalid refresh token', async () => {
@@ -151,7 +167,7 @@ describe('Auth Service', () => {
         statusCode: 401,
       });
 
-      await expect(authService.refreshToken('invalid-token')).rejects.toThrow();
+      await expect(authService.refreshToken()).rejects.toThrow();
     });
   });
 

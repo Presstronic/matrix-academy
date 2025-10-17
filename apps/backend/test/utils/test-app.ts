@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { Injectable, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,9 +11,13 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ThrottlerStorageService } from '@nestjs/throttler';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import type { Cache } from 'cache-manager';
+import type { RedisStore } from 'cache-manager-redis-yet';
+import cookieParser from 'cookie-parser';
 
 import { AppModule } from '../../src/app.module.js';
 import { RolesGuard } from '../../src/auth/guards/roles.guard.js';
+import { CsrfGuard } from '../../src/common/guards/csrf.guard.js';
 import { getTestDataSource } from './test-db.js';
 import { getTestJwtSecret } from './test-jwt.js';
 
@@ -25,6 +30,14 @@ class MockRolesGuard implements CanActivate {
 }
 
 @Injectable()
+class MockCSRFGuard implements CanActivate {
+  constructor() {}
+  canActivate(_context: ExecutionContext): boolean {
+    return true;
+  }
+}
+
+@Injectable()
 class MockThrottlerStorage extends ThrottlerStorageService {
   increment(
     _key: string,
@@ -32,9 +45,19 @@ class MockThrottlerStorage extends ThrottlerStorageService {
     _limit: number,
     _blockDuration: number,
     _throttlerName: string,
-  ): Promise<{ totalHits: number; timeToExpire: number; isBlocked: false; timeToBlockExpire: number }> {
+  ): Promise<{
+    totalHits: number;
+    timeToExpire: number;
+    isBlocked: false;
+    timeToBlockExpire: number;
+  }> {
     // Always return 1 hit (well under any limit) and never blocked
-    return Promise.resolve({ totalHits: 1, timeToExpire: ttl, isBlocked: false, timeToBlockExpire: 0 });
+    return Promise.resolve({
+      totalHits: 1,
+      timeToExpire: ttl,
+      isBlocked: false,
+      timeToBlockExpire: 0,
+    });
   }
 }
 
@@ -78,12 +101,16 @@ export const createTestApp = async (): Promise<INestApplication> => {
     .useValue(testDataSource)
     .overrideProvider(ThrottlerStorageService)
     .useClass(MockThrottlerStorage)
-    // Don't mock JwtAuthGuard - let it work normally with real tokens
     .overrideGuard(RolesGuard)
     .useClass(MockRolesGuard)
+    .overrideGuard(CsrfGuard)
+    .useClass(MockCSRFGuard)
     .compile();
 
   const app = moduleFixture.createNestApplication();
+
+  // Enable cookie parser
+  app.use(cookieParser());
 
   // Apply global pipes (same as production)
   app.useGlobalPipes(
@@ -104,11 +131,28 @@ export const createTestApp = async (): Promise<INestApplication> => {
   return app;
 };
 
-/**
- * Close and cleanup the test application
- */
 export const closeTestApp = async (app: INestApplication): Promise<void> => {
-  if (app) {
-    await app.close();
+  if (!app) return;
+
+  try {
+    const cache = app.get<Cache>(CACHE_MANAGER, { strict: false });
+
+    // Narrow to the Redis store used by cache-manager-redis-yet
+    const redisStore = cache.stores?.[0] as unknown as RedisStore;
+
+    // Derive the client type from the store to avoid cross-package type conflicts
+    type RedisClientFromStore = RedisStore['client'];
+
+    const client: RedisClientFromStore | undefined = redisStore?.client;
+
+    if (client && typeof client.quit === 'function') {
+      await client.quit();
+    } else if (client && typeof (client as { disconnect?: () => void }).disconnect === 'function') {
+      (client as { disconnect: () => void }).disconnect();
+    }
+  } catch {
+    // swallow in tests
   }
+
+  await app.close();
 };

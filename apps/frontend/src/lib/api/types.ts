@@ -17,15 +17,15 @@ export interface ApiErrorResponse {
 
 /**
  * Standard API success response structure
+ * Matches backend's SuccessResponseDto
  */
 export interface ApiResponse<T = unknown> {
+  success: boolean;
   data: T;
-  message?: string;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    [key: string]: unknown;
+  metadata: {
+    timestamp: string;
+    correlationId: string;
+    version: string;
   };
 }
 
@@ -40,13 +40,23 @@ export interface PaginationParams {
 }
 
 /**
- * Authentication token response
+ * Authentication token response (legacy - tokens in body)
+ * @deprecated Tokens are now in HttpOnly cookies
  */
-export interface AuthTokenResponse {
+export interface LegacyAuthTokenResponse {
   accessToken: string;
   refreshToken?: string;
   expiresIn?: number;
   tokenType?: string;
+}
+
+/**
+ * Authentication response (cookie-based)
+ * Tokens are stored in HttpOnly cookies on the client
+ */
+export interface AuthTokenResponse {
+  user: User;
+  expiresIn: number;
 }
 
 /**

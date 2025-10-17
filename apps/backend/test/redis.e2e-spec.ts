@@ -7,6 +7,7 @@
  * @author Your Name <you@example.com>
  * @copyright 2025 Presstronic Studios LLC
  */
+import { afterAll, afterEach, beforeAll, describe, expect, it } from '@jest/globals';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { INestApplication } from '@nestjs/common';
 import type { Cache } from 'cache-manager';

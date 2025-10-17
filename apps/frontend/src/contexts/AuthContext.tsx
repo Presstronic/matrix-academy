@@ -11,13 +11,8 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState } from
 import {
   authService,
   type AuthTokenResponse,
-  getAuthToken,
-  getRefreshToken,
   type LoginCredentials,
   type RegistrationData,
-  removeAuthToken,
-  setAuthToken,
-  setRefreshToken,
   type User,
 } from '@/lib/api';
 
@@ -95,7 +90,7 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
   }, []);
 
   /**
-   * Logout user
+   * Logout user - clears cookies on server and local state
    */
   const logout = useCallback(async () => {
     try {
@@ -104,7 +99,6 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
       // Ignore logout errors, still clear local state
     } finally {
       clearTimers();
-      removeAuthToken();
       setState({
         user: null,
         isAuthenticated: false,
@@ -116,6 +110,7 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
 
   /**
    * Set up automatic token refresh
+   * Tokens are stored in HttpOnly cookies and automatically included in requests
    */
   const setupTokenRefresh = useCallback(
     (expiresIn?: number) => {
@@ -132,16 +127,15 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
         refreshTimerRef.current = setTimeout(() => {
           void (async () => {
             try {
-              const refreshToken = getRefreshToken();
-              if (refreshToken) {
-                const tokens = await authService.refreshToken(refreshToken);
-                setAuthToken(tokens.accessToken);
-                if (tokens.refreshToken) {
-                  setRefreshToken(tokens.refreshToken);
-                }
-                // Schedule next refresh
-                setupTokenRefresh(tokens.expiresIn);
-              }
+              // Refresh token is automatically sent via cookie
+              const response = await authService.refreshToken();
+              // Update user with refreshed data
+              setState((prev) => ({
+                ...prev,
+                user: response.user,
+              }));
+              // Schedule next refresh
+              setupTokenRefresh(response.expiresIn);
             } catch {
               // Token refresh failed, logout user
               void logout();
@@ -150,22 +144,28 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
         }, refreshDelay);
       }
 
-      // Set up periodic session check
+      // Set up periodic session check by pinging the /me endpoint
       sessionCheckTimerRef.current = setInterval(() => {
-        const token = getAuthToken();
-        // Check both token and current auth state
-        setState((currentState) => {
-          if (!token && currentState.isAuthenticated) {
-            // Token was removed externally, logout user
-            return {
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-              error: 'Session expired',
-            };
+        void (async () => {
+          try {
+            // Check if session is still valid by fetching current user
+            await authService.getCurrentUser();
+          } catch {
+            // Session expired or invalid, logout
+            setState((currentState) => {
+              if (currentState.isAuthenticated) {
+                void logout();
+                return {
+                  user: null,
+                  isAuthenticated: false,
+                  isLoading: false,
+                  error: 'Session expired',
+                };
+              }
+              return currentState;
+            });
           }
-          return currentState;
-        });
+        })();
       }, SESSION_CHECK_INTERVAL);
     },
     [clearTimers, disableTimers, logout],
@@ -173,21 +173,11 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
 
   /**
    * Load user from current session
+   * Checks if authentication cookies exist by attempting to fetch user
    */
   const loadUser = useCallback(async () => {
-    const token = getAuthToken();
-
-    if (!token) {
-      setState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-      });
-      return;
-    }
-
     try {
+      // Try to fetch user - if cookies are valid, this will succeed
       const user = await authService.getCurrentUser();
       setState({
         user,
@@ -197,13 +187,12 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
       });
       setupTokenRefresh();
     } catch {
-      // Token is invalid, clear it
-      removeAuthToken();
+      // No valid session (cookies expired or missing)
       setState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: 'Session expired',
+        error: null,
       });
     }
   }, [setupTokenRefresh]);
@@ -221,28 +210,23 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
 
   /**
    * Login with credentials
+   * Tokens are set as HttpOnly cookies by the server
    */
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        const tokens: AuthTokenResponse = await authService.login(credentials);
-        setAuthToken(tokens.accessToken);
-        if (tokens.refreshToken) {
-          setRefreshToken(tokens.refreshToken);
-        }
-
-        const user = await authService.getCurrentUser();
+        const response: AuthTokenResponse = await authService.login(credentials);
 
         setState({
-          user,
+          user: response.user,
           isAuthenticated: true,
           isLoading: false,
           error: null,
         });
 
-        setupTokenRefresh(tokens.expiresIn);
+        setupTokenRefresh(response.expiresIn);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Login failed';
         setState({
@@ -259,28 +243,23 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
 
   /**
    * Register new user
+   * Tokens are set as HttpOnly cookies by the server
    */
   const register = useCallback(
     async (data: RegistrationData) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        const tokens: AuthTokenResponse = await authService.register(data);
-        setAuthToken(tokens.accessToken);
-        if (tokens.refreshToken) {
-          setRefreshToken(tokens.refreshToken);
-        }
-
-        const user = await authService.getCurrentUser();
+        const response: AuthTokenResponse = await authService.register(data);
 
         setState({
-          user,
+          user: response.user,
           isAuthenticated: true,
           isLoading: false,
           error: null,
         });
 
-        setupTokenRefresh(tokens.expiresIn);
+        setupTokenRefresh(response.expiresIn);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Registration failed';
         setState({

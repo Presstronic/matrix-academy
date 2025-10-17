@@ -15,9 +15,11 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from './auth/guards/roles.guard.js';
+import { CommonModule } from './common/common.module.js';
+import { CsrfGuard } from './common/guards/csrf.guard.js';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
 import { getDatabaseConfig } from './config/database.config.js';
-import type { EnvironmentVariables} from './config/env.validation.js';
+import type { EnvironmentVariables } from './config/env.validation.js';
 import { validate } from './config/env.validation.js';
 import { getRedisConfig } from './config/redis.config.js';
 
@@ -59,6 +61,7 @@ import { getRedisConfig } from './config/redis.config.js';
         await getRedisConfig(configService),
     }),
     AuthModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [
@@ -74,6 +77,10 @@ import { getRedisConfig } from './config/redis.config.js';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
     },
     // TODO: Re-enable ThrottlerGuard after fixing test mocking (see GitHub issue)
     // {

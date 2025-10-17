@@ -102,9 +102,9 @@ export const createTestApp = async (): Promise<INestApplication> => {
     .useValue(testDataSource)
     .overrideProvider(ThrottlerStorageService)
     .useClass(MockThrottlerStorage)
-    .overrideProvider(RolesGuard)
+    .overrideGuard(RolesGuard)
     .useClass(MockRolesGuard)
-    .overrideProvider(CsrfGuard)
+    .overrideGuard(CsrfGuard)
     .useClass(MockCSRFGuard)
     .compile();
 

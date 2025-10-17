@@ -17,15 +17,15 @@ export interface ApiErrorResponse {
 
 /**
  * Standard API success response structure
+ * Matches backend's SuccessResponseDto
  */
 export interface ApiResponse<T = unknown> {
+  success: boolean;
   data: T;
-  message?: string;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    [key: string]: unknown;
+  metadata: {
+    timestamp: string;
+    correlationId: string;
+    version: string;
   };
 }
 

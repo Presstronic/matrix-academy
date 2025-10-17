@@ -14,6 +14,17 @@ import * as authService from './auth.service';
 describe('Auth Service', () => {
   let mock: MockAdapter;
 
+  // Helper to wrap response in API envelope
+  const wrapInEnvelope = <T>(data: T) => ({
+    success: true,
+    data,
+    metadata: {
+      timestamp: new Date().toISOString(),
+      correlationId: 'test-correlation-id',
+      version: '1.0',
+    },
+  });
+
   beforeEach(() => {
     mock = new MockAdapter(apiClient);
   });
@@ -34,7 +45,7 @@ describe('Auth Service', () => {
         expiresIn: 900,
       };
 
-      mock.onPost('/auth/login', credentials).reply(200, authResponse);
+      mock.onPost('/auth/login', credentials).reply(200, wrapInEnvelope(authResponse));
 
       const result = await authService.login(credentials);
 
@@ -71,7 +82,7 @@ describe('Auth Service', () => {
         expiresIn: 900,
       };
 
-      mock.onPost('/auth/register', registrationData).reply(201, authResponse);
+      mock.onPost('/auth/register', registrationData).reply(201, wrapInEnvelope(authResponse));
 
       const result = await authService.register(registrationData);
 
@@ -111,7 +122,7 @@ describe('Auth Service', () => {
         role: 'user',
       };
 
-      mock.onGet('/auth/me').reply(200, user);
+      mock.onGet('/auth/me').reply(200, wrapInEnvelope(user));
 
       const result = await authService.getCurrentUser();
 
@@ -141,7 +152,7 @@ describe('Auth Service', () => {
       };
 
       // Refresh token is sent via HttpOnly cookie, not in body
-      mock.onPost('/auth/refresh').reply(200, authResponse);
+      mock.onPost('/auth/refresh').reply(200, wrapInEnvelope(authResponse));
 
       const result = await authService.refreshToken();
 

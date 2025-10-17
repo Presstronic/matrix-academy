@@ -6,14 +6,21 @@
  * @file Authentication API service
  */
 import { get, post } from '../client';
-import type { AuthTokenResponse, LoginCredentials, RegistrationData, User } from '../types';
+import type {
+  ApiResponse,
+  AuthTokenResponse,
+  LoginCredentials,
+  RegistrationData,
+  User,
+} from '../types';
 
 /**
  * Login with email and password
  * Tokens are set as HttpOnly cookies by the server
  */
 export async function login(credentials: LoginCredentials): Promise<AuthTokenResponse> {
-  return await post<AuthTokenResponse>('/auth/login', credentials);
+  const response = await post<ApiResponse<AuthTokenResponse>>('/auth/login', credentials);
+  return response.data;
 }
 
 /**
@@ -21,7 +28,8 @@ export async function login(credentials: LoginCredentials): Promise<AuthTokenRes
  * Tokens are set as HttpOnly cookies by the server
  */
 export async function register(data: RegistrationData): Promise<AuthTokenResponse> {
-  return await post<AuthTokenResponse>('/auth/register', data);
+  const response = await post<ApiResponse<AuthTokenResponse>>('/auth/register', data);
+  return response.data;
 }
 
 /**
@@ -35,7 +43,8 @@ export async function logout(): Promise<void> {
  * Get current user profile
  */
 export async function getCurrentUser(): Promise<User> {
-  return await get<User>('/auth/me');
+  const response = await get<ApiResponse<User>>('/auth/me');
+  return response.data;
 }
 
 /**
@@ -43,7 +52,8 @@ export async function getCurrentUser(): Promise<User> {
  * Refresh token is automatically sent via HttpOnly cookie
  */
 export async function refreshToken(): Promise<AuthTokenResponse> {
-  return await post<AuthTokenResponse>('/auth/refresh');
+  const response = await post<ApiResponse<AuthTokenResponse>>('/auth/refresh');
+  return response.data;
 }
 
 /**

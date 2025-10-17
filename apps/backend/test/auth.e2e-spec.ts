@@ -172,28 +172,27 @@ describe('Auth (e2e)', () => {
       tenantId: testTenantId,
     };
 
-    let refreshTokenCookie: string;
+    let cookies: string[];
 
     beforeEach(async () => {
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
 
-      const cookies = registerResponse.headers['set-cookie'] as unknown as string[];
-      refreshTokenCookie = cookies.find((c) => c.startsWith('refresh_token='))!;
+      cookies = registerResponse.headers['set-cookie'] as unknown as string[];
     });
 
     it('should refresh tokens successfully', () => {
       return request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', refreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(cookies, 'refresh_token')}`)
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('success', true);
-          const cookies = res.headers['set-cookie'] as unknown as string[];
-          const newRefreshToken = getCookieValue(cookies, 'refresh_token');
+          const newCookies = res.headers['set-cookie'] as unknown as string[];
+          const newRefreshToken = getCookieValue(newCookies, 'refresh_token');
           expect(newRefreshToken).toBeTruthy();
-          expect(getCookieValue([refreshTokenCookie], 'refresh_token')).not.toBe(newRefreshToken);
+          expect(getCookieValue(cookies, 'refresh_token')).not.toBe(newRefreshToken);
         });
     });
 
@@ -207,12 +206,12 @@ describe('Auth (e2e)', () => {
     it('should reject refresh with already used token (rotation)', async () => {
       await request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', refreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(cookies, 'refresh_token')}`)
         .expect(200);
 
       return request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', refreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(cookies, 'refresh_token')}`)
         .expect(401);
     });
   });
@@ -224,35 +223,28 @@ describe('Auth (e2e)', () => {
       tenantId: testTenantId,
     };
 
-    let accessTokenCookie: string;
-    let refreshTokenCookie: string;
+    let cookies: string[];
 
     beforeEach(async () => {
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
 
-      const cookies = registerResponse.headers['set-cookie'] as unknown as string[];
-      accessTokenCookie = cookies.find((c) => c.startsWith('access_token='))!;
-      refreshTokenCookie = cookies.find((c) => c.startsWith('refresh_token='))!;
+      cookies = registerResponse.headers['set-cookie'] as unknown as string[];
     });
 
     it('should logout successfully', () => {
-      return withCsrf(
-        request(app.getHttpServer()).post('/auth/logout'),
-        [accessTokenCookie, refreshTokenCookie].join('; '),
-      ).expect(204);
+      const cookieHeader = `access_token=${getCookieValue(cookies, 'access_token')}; refresh_token=${getCookieValue(cookies, 'refresh_token')}`;
+      return withCsrf(request(app.getHttpServer()).post('/auth/logout'), cookieHeader).expect(204);
     });
 
     it('should invalidate refresh token after logout', async () => {
-      await withCsrf(
-        request(app.getHttpServer()).post('/auth/logout'),
-        [accessTokenCookie, refreshTokenCookie].join('; '),
-      ).expect(204);
+      const cookieHeader = `access_token=${getCookieValue(cookies, 'access_token')}; refresh_token=${getCookieValue(cookies, 'refresh_token')}`;
+      await withCsrf(request(app.getHttpServer()).post('/auth/logout'), cookieHeader).expect(204);
 
       return request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', refreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(cookies, 'refresh_token')}`)
         .expect(401);
     });
 
@@ -270,21 +262,20 @@ describe('Auth (e2e)', () => {
       tenantId: testTenantId,
     };
 
-    let accessTokenCookie: string;
+    let cookies: string[];
 
     beforeEach(async () => {
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
 
-      const cookies = registerResponse.headers['set-cookie'] as unknown as string[];
-      accessTokenCookie = cookies.find((c) => c.startsWith('access_token='))!;
+      cookies = registerResponse.headers['set-cookie'] as unknown as string[];
     });
 
     it('should return current user information', () => {
       return request(app.getHttpServer())
         .get('/auth/me')
-        .set('Cookie', accessTokenCookie)
+        .set('Cookie', `access_token=${getCookieValue(cookies, 'access_token')}`)
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('success', true);
@@ -323,7 +314,6 @@ describe('Auth (e2e)', () => {
         .expect(201);
 
       const registerCookies = registerRes.headers['set-cookie'] as unknown as string[];
-      const firstRefreshTokenCookie = registerCookies.find((c) => c.startsWith('refresh_token='))!;
 
       const loginRes = await request(app.getHttpServer())
         .post('/auth/login')
@@ -334,38 +324,32 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       const loginCookies = loginRes.headers['set-cookie'] as unknown as string[];
-      const accessTokenCookie = loginCookies.find((c) => c.startsWith('access_token='))!;
-      const secondRefreshTokenCookie = loginCookies.find((c) => c.startsWith('refresh_token='))!;
 
       await request(app.getHttpServer())
         .get('/auth/me')
-        .set('Cookie', accessTokenCookie)
+        .set('Cookie', `access_token=${getCookieValue(loginCookies, 'access_token')}`)
         .expect(200);
 
       const refreshRes = await request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', secondRefreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(loginCookies, 'refresh_token')}`)
         .expect(200);
 
       const refreshCookies = refreshRes.headers['set-cookie'] as unknown as string[];
-      const newAccessTokenCookie = refreshCookies.find((c) => c.startsWith('access_token='))!;
-      const thirdRefreshTokenCookie = refreshCookies.find((c) => c.startsWith('refresh_token='))!;
 
-      await withCsrf(
-        request(app.getHttpServer()).post('/auth/logout'),
-        [newAccessTokenCookie, thirdRefreshTokenCookie].join('; '),
-      ).expect(204);
+      const cookieHeader = `access_token=${getCookieValue(refreshCookies, 'access_token')}; refresh_token=${getCookieValue(refreshCookies, 'refresh_token')}`;
+      await withCsrf(request(app.getHttpServer()).post('/auth/logout'), cookieHeader).expect(204);
 
       // Third refresh token should be invalid (was logged out)
       await request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', thirdRefreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(refreshCookies, 'refresh_token')}`)
         .expect(401);
 
       // First refresh token should still be valid (different session, not logged out)
       await request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Cookie', firstRefreshTokenCookie)
+        .set('Cookie', `refresh_token=${getCookieValue(registerCookies, 'refresh_token')}`)
         .expect(200);
     });
   });

@@ -13,8 +13,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
-import { ThrottlerExceptionFilter } from './common/guards/throttler-exception.filter.js';
+import { HttpExceptionFilter, ThrottlerExceptionFilter } from './common/filters/index.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {

@@ -213,9 +213,21 @@ describe('AuthController', () => {
       const result = await controller.logout(userId, req as unknown as Request, res);
 
       expect(authService.logout).toHaveBeenCalledWith(userId, 'token-abc');
-      expect(res.clearCookie).toHaveBeenCalledWith('access_token', { path: '/' });
-      expect(res.clearCookie).toHaveBeenCalledWith('refresh_token', { path: '/' });
-      expect(res.clearCookie).toHaveBeenCalledWith('csrf_token', { path: '/' });
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token', {
+        path: '/',
+        sameSite: 'strict',
+        secure: false,
+      });
+      expect(res.clearCookie).toHaveBeenCalledWith('refresh_token', {
+        path: '/',
+        sameSite: 'strict',
+        secure: false,
+      });
+      expect(res.clearCookie).toHaveBeenCalledWith('csrf_token', {
+        path: '/',
+        sameSite: 'strict',
+        secure: false,
+      });
       expect(result).toBeUndefined();
     });
   });

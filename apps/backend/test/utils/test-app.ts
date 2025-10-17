@@ -7,7 +7,6 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { Injectable, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Reflector } from '@nestjs/core';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ThrottlerStorageService } from '@nestjs/throttler';
@@ -32,7 +31,7 @@ class MockRolesGuard implements CanActivate {
 
 @Injectable()
 class MockCSRFGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor() {}
   canActivate(_context: ExecutionContext): boolean {
     return true;
   }

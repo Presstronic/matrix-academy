@@ -6,6 +6,8 @@
 import { Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
+import { AppHeader } from './AppHeader';
+
 export function RootLayout() {
   return (
     <Box
@@ -16,7 +18,10 @@ export function RootLayout() {
         background: 'linear-gradient(to bottom, #000000, #0a0e0a)',
       }}
     >
-      <Outlet />
+      <AppHeader />
+      <Box component="main">
+        <Outlet />
+      </Box>
     </Box>
   );
 }

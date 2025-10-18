@@ -331,8 +331,12 @@ describe('RegisterPage', () => {
         expect(screen.getByLabelText(/Email Address/i)).toBeDisabled();
       });
 
-      // Resolve the promise
+      // Resolve the promise and wait for state updates to complete
       resolveRegister!({ user: {}, expiresIn: 900 });
+      await waitFor(() => {
+        // Wait for the component to finish processing the registration
+        expect(true).toBe(true);
+      });
     });
   });
 

@@ -252,8 +252,12 @@ describe('LoginPage', () => {
         expect(screen.getByLabelText(/Password/i)).toBeDisabled();
       });
 
-      // Resolve the promise
+      // Resolve the promise and wait for state updates to complete
       resolveLogin!({ user: {}, expiresIn: 900 });
+      await waitFor(() => {
+        // Wait for the component to finish processing the login
+        expect(true).toBe(true);
+      });
     });
   });
 

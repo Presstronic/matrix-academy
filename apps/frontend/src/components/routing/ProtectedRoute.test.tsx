@@ -72,6 +72,10 @@ describe('ProtectedRoute', () => {
             </ProtectedRoute>
           ),
         },
+        {
+          path: '/',
+          element: <div>Home Page</div>,
+        },
       ],
       {
         initialEntries: ['/protected'],
@@ -106,6 +110,10 @@ describe('ProtectedRoute', () => {
               <div>Protected Content</div>
             </ProtectedRoute>
           ),
+        },
+        {
+          path: '/login',
+          element: <div>Login Page</div>,
         },
       ],
       {

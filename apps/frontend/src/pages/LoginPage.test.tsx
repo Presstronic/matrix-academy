@@ -166,7 +166,8 @@ describe('LoginPage', () => {
         roles: ['user'],
         tenantId: 'test-tenant',
         isActive: true,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       mockLogin.mockResolvedValue({
@@ -221,16 +222,14 @@ describe('LoginPage', () => {
 
     it('should disable form during submission', async () => {
       const user = userEvent.setup();
-      interface LoginResponse {
-        user: Record<string, unknown>;
-        expiresIn: number;
-      }
-      let resolveLogin: (value: LoginResponse) => void;
-      const loginPromise = new Promise<LoginResponse>((resolve) => {
-        resolveLogin = resolve;
-      });
+      let resolveLogin: (value: { user: Record<string, unknown>; expiresIn: number }) => void;
+      const loginPromise = new Promise<{ user: Record<string, unknown>; expiresIn: number }>(
+        (resolve) => {
+          resolveLogin = resolve;
+        },
+      );
 
-      mockLogin.mockReturnValue(loginPromise);
+      mockLogin.mockReturnValue(loginPromise as never);
 
       renderWithProviders(<LoginPage />);
 

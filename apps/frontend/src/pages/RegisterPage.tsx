@@ -39,7 +39,7 @@ interface FormErrors {
 }
 
 export function RegisterPage() {
-  const { register, user, loading: authLoading } = useAuth();
+  const { register, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     email: '',

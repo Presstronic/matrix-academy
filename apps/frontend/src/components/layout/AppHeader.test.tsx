@@ -124,7 +124,8 @@ describe('AppHeader', () => {
       roles: ['user'],
       tenantId: 'test-tenant',
       isActive: true,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     beforeEach(() => {

@@ -11,7 +11,7 @@ import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 export function LoginPage() {
-  const { login, user, loading: authLoading } = useAuth();
+  const { login, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',

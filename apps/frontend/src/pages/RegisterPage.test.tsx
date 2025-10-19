@@ -224,7 +224,8 @@ describe('RegisterPage', () => {
         roles: ['user'],
         tenantId: 'test-tenant',
         isActive: true,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       mockRegister.mockResolvedValue({
@@ -294,16 +295,14 @@ describe('RegisterPage', () => {
 
     it('should disable form during submission', async () => {
       const user = userEvent.setup();
-      interface RegisterResponse {
-        user: Record<string, unknown>;
-        expiresIn: number;
-      }
-      let resolveRegister: (value: RegisterResponse) => void;
-      const registerPromise = new Promise<RegisterResponse>((resolve) => {
-        resolveRegister = resolve;
-      });
+      let resolveRegister: (value: { user: Record<string, unknown>; expiresIn: number }) => void;
+      const registerPromise = new Promise<{ user: Record<string, unknown>; expiresIn: number }>(
+        (resolve) => {
+          resolveRegister = resolve;
+        },
+      );
 
-      mockRegister.mockReturnValue(registerPromise);
+      mockRegister.mockReturnValue(registerPromise as never);
 
       renderWithProviders(<RegisterPage />);
 

@@ -71,13 +71,21 @@ describe('Auth Service', () => {
       const registrationData = {
         email: 'new@example.com',
         password: 'password123',
-        name: 'New User',
+        firstName: 'New',
+        lastName: 'User',
+        tenantId: 'test-tenant',
       };
       const authResponse = {
         user: {
           id: '2',
           email: 'new@example.com',
-          name: 'New User',
+          firstName: 'New',
+          lastName: 'User',
+          roles: ['user'],
+          tenantId: 'test-tenant',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
         expiresIn: 900,
       };
@@ -94,6 +102,9 @@ describe('Auth Service', () => {
       const registrationData = {
         email: 'invalid-email',
         password: '123',
+        firstName: 'Test',
+        lastName: 'User',
+        tenantId: 'test-tenant',
       };
 
       mock.onPost('/auth/register').reply(400, {

@@ -44,6 +44,6 @@ export class Tenant {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany('User', 'tenant')
+  @OneToMany(() => User, user => user.tenant)
   users!: User[];
 }

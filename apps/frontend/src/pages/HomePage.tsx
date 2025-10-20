@@ -37,7 +37,7 @@ export function HomePage() {
             <Typography
               id="hero-heading"
               variant="h1"
-              component="h2"
+              component="h1"
               sx={{
                 fontSize: { xs: '2rem', sm: '3rem', md: '4rem' },
                 mb: 2,

@@ -34,13 +34,15 @@ export class CreateTenantAndDefaultOrg1760079600000 implements MigrationInterfac
 
     // Insert default tenant for individual users
     await queryRunner.query(`
-            INSERT INTO "tenants" ("id", "name", "slug", "description", "isActive")
+            INSERT INTO "tenants" ("id", "name", "slug", "description", "isActive", "createdAt", "updatedAt")
             VALUES (
                 '00000000-0000-0000-0000-000000000001',
                 'Individual Users',
                 'individual',
                 'Default tenant for individual user registrations',
-                true
+                true,
+                now(),
+                now()
             )
         `);
 

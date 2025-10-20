@@ -19,7 +19,7 @@ describe('HomePage', () => {
       renderWithRouter(<HomePage />);
 
       expect(
-        screen.getByRole('heading', { name: /Welcome to Matrix Academy/i, level: 2 }),
+        screen.getByRole('heading', { name: /Welcome to Matrix Academy/i, level: 1 }),
       ).toBeInTheDocument();
     });
 

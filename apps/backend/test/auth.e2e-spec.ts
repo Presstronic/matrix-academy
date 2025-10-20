@@ -28,7 +28,6 @@ function getCookieValue(cookies: string[], cookieName: string): string | null {
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
-  const testTenantId = faker.string.uuid();
 
   beforeAll(async () => {
     await createTestDatabase();
@@ -51,7 +50,6 @@ describe('Auth (e2e)', () => {
         password: 'Test123456!',
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
-        tenantId: testTenantId,
       };
 
       return request(app.getHttpServer())
@@ -76,7 +74,8 @@ describe('Auth (e2e)', () => {
       const registerDto = {
         email: faker.internet.email(),
         password: 'Test123456!',
-        tenantId: testTenantId,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
       };
 
       await request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(201);
@@ -90,7 +89,8 @@ describe('Auth (e2e)', () => {
         .send({
           email: 'invalid-email',
           password: 'Test123456!',
-          tenantId: testTenantId,
+          firstName: faker.person.firstName(),
+          lastName: faker.person.lastName(),
         })
         .expect(400);
     });
@@ -101,7 +101,8 @@ describe('Auth (e2e)', () => {
         .send({
           email: faker.internet.email(),
           password: 'short',
-          tenantId: testTenantId,
+          firstName: faker.person.firstName(),
+          lastName: faker.person.lastName(),
         })
         .expect(400);
     });
@@ -115,7 +116,8 @@ describe('Auth (e2e)', () => {
     const userCredentials = {
       email: faker.internet.email(),
       password: 'Test123456!',
-      tenantId: testTenantId,
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
     };
 
     beforeEach(async () => {
@@ -169,7 +171,8 @@ describe('Auth (e2e)', () => {
     const userCredentials = {
       email: faker.internet.email(),
       password: 'Test123456!',
-      tenantId: testTenantId,
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
     };
 
     let cookies: string[];
@@ -220,7 +223,8 @@ describe('Auth (e2e)', () => {
     const userCredentials = {
       email: faker.internet.email(),
       password: 'Test123456!',
-      tenantId: testTenantId,
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
     };
 
     let cookies: string[];
@@ -259,7 +263,6 @@ describe('Auth (e2e)', () => {
       password: 'Test123456!',
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      tenantId: testTenantId,
     };
 
     let cookies: string[];
@@ -305,7 +308,8 @@ describe('Auth (e2e)', () => {
       const userCredentials = {
         email: faker.internet.email(),
         password: 'Test123456!',
-        tenantId: testTenantId,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
       };
 
       const registerRes = await request(app.getHttpServer())

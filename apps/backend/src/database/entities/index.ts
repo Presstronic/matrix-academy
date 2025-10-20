@@ -8,4 +8,5 @@
  * @copyright 2025 Presstronic Studios LLC
  */
 export * from './refresh-token.entity.js';
+export * from './tenant.entity.js';
 export * from './user.entity.js';

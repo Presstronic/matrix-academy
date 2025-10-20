@@ -264,7 +264,6 @@ describe('AuthContext', () => {
           password: 'password',
           firstName: 'New',
           lastName: 'User',
-          tenantId: 'test-tenant',
         });
       });
 
@@ -297,7 +296,6 @@ describe('AuthContext', () => {
             password: 'password',
             firstName: 'Test',
             lastName: 'User',
-            tenantId: 'test-tenant',
           });
         } catch {
           // Expected error

@@ -17,7 +17,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { User } from './user.entity.js';
+import type { User } from './user.entity.js';
 
 @Entity('refresh_tokens')
 export class RefreshToken {
@@ -32,7 +32,7 @@ export class RefreshToken {
   @Index('idx_refresh_tokens_user')
   userId!: string;
 
-  @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
+  @ManyToOne('User', 'refreshTokens', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user!: User;
 
@@ -45,7 +45,7 @@ export class RefreshToken {
   @Column({ nullable: true })
   revokedAt?: Date;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   userAgent?: string;
 
   @Column({ type: 'varchar', length: 45, nullable: true })

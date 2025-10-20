@@ -13,12 +13,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CommonModule } from '../common/common.module.js';
 import { RefreshToken, User } from '../database/entities/index.js';
+import { TenantModule } from '../tenant/tenant.module.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([User, RefreshToken]), CommonModule],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([User, RefreshToken]),
+    CommonModule,
+    TenantModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, PermissionsService],
   exports: [AuthService, PermissionsService],

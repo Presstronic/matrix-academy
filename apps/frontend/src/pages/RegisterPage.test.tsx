@@ -62,7 +62,6 @@ describe('RegisterPage', () => {
       expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Confirm Password/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Organization ID/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Register/i })).toBeInTheDocument();
     });
 
@@ -192,25 +191,6 @@ describe('RegisterPage', () => {
         expect(screen.getByText(/Passwords do not match/i)).toBeInTheDocument();
       });
     });
-
-    it('should show error when organization ID is empty', async () => {
-      const user = userEvent.setup();
-      renderWithProviders(<RegisterPage />);
-
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Organization ID/i)).toBeInTheDocument();
-      });
-
-      const orgIdInput = screen.getByLabelText(/Organization ID/i);
-      await user.clear(orgIdInput); // Clear the default value
-
-      const submitButton = screen.getByRole('button', { name: /Register/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/Organization ID is required/i)).toBeInTheDocument();
-      });
-    });
   });
 
   describe('Form Submission', () => {
@@ -259,7 +239,6 @@ describe('RegisterPage', () => {
           password: 'Password123',
           firstName: 'New',
           lastName: 'User',
-          tenantId: 'default-tenant', // Default value
         });
       });
     });

@@ -23,6 +23,9 @@ async function bootstrap(): Promise<void> {
     },
   });
 
+  // Set global API prefix
+  app.setGlobalPrefix('api');
+
   // Enable cookie parser
   app.use(cookieParser());
 
@@ -72,7 +75,7 @@ async function bootstrap(): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true, // Keep authorization token after page refresh
     },

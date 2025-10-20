@@ -26,6 +26,21 @@ export const createTestDatabase = async (): Promise<DataSource> => {
   });
 
   await dataSource.initialize();
+
+  // Insert default tenant for individual users (mimics migration 1760079600000)
+  await dataSource.query(`
+    INSERT INTO "tenants" ("id", "name", "slug", "description", "isActive", "createdAt", "updatedAt")
+    VALUES (
+      '00000000-0000-0000-0000-000000000001',
+      'Individual Users',
+      'individual',
+      'Default tenant for individual user registrations',
+      1,
+      datetime('now'),
+      datetime('now')
+    )
+  `);
+
   return dataSource;
 };
 
@@ -57,10 +72,32 @@ export const clearDatabase = async (): Promise<void> => {
     return;
   }
 
-  const entities = dataSource.entityMetadatas;
+  // Temporarily disable foreign key constraints for clearing
+  await dataSource.query('PRAGMA foreign_keys = OFF');
 
-  for (const entity of entities) {
-    const repository = dataSource.getRepository(entity.name);
-    await repository.clear();
+  try {
+    const entities = dataSource.entityMetadatas;
+
+    for (const entity of entities) {
+      const repository = dataSource.getRepository(entity.name);
+      await repository.clear();
+    }
+
+    // Re-insert the default tenant after clearing
+    await dataSource.query(`
+      INSERT INTO "tenants" ("id", "name", "slug", "description", "isActive", "createdAt", "updatedAt")
+      VALUES (
+        '00000000-0000-0000-0000-000000000001',
+        'Individual Users',
+        'individual',
+        'Default tenant for individual user registrations',
+        1,
+        datetime('now'),
+        datetime('now')
+      )
+    `);
+  } finally {
+    // Re-enable foreign key constraints
+    await dataSource.query('PRAGMA foreign_keys = ON');
   }
 };

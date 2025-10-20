@@ -92,7 +92,6 @@ export interface RegistrationData {
   password: string;
   firstName: string;
   lastName: string;
-  tenantId: string;
 }
 
 /**

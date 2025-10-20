@@ -26,7 +26,6 @@ interface FormData {
   confirmPassword: string;
   firstName: string;
   lastName: string;
-  tenantId: string;
 }
 
 interface FormErrors {
@@ -35,7 +34,6 @@ interface FormErrors {
   confirmPassword: string;
   firstName: string;
   lastName: string;
-  tenantId: string;
 }
 
 export function RegisterPage() {
@@ -47,7 +45,6 @@ export function RegisterPage() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    tenantId: 'default-tenant', // Default tenant ID
   });
   const [errors, setErrors] = useState<FormErrors>({
     email: '',
@@ -55,7 +52,6 @@ export function RegisterPage() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    tenantId: '',
   });
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,7 +68,6 @@ export function RegisterPage() {
       confirmPassword: '',
       firstName: '',
       lastName: '',
-      tenantId: '',
     };
 
     // Email validation
@@ -108,11 +103,6 @@ export function RegisterPage() {
       newErrors.lastName = 'Last name is required';
     }
 
-    // Tenant ID validation
-    if (!formData.tenantId) {
-      newErrors.tenantId = 'Organization ID is required';
-    }
-
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => !error);
   };
@@ -133,7 +123,6 @@ export function RegisterPage() {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        tenantId: formData.tenantId,
       });
       void navigate('/dashboard');
     } catch (error) {
@@ -266,21 +255,6 @@ export function RegisterPage() {
             onChange={handleChange('confirmPassword')}
             error={Boolean(errors.confirmPassword)}
             helperText={errors.confirmPassword}
-            disabled={isSubmitting}
-            required
-            sx={{ mt: 2 }}
-          />
-
-          <TextField
-            fullWidth
-            id="tenantId"
-            name="tenantId"
-            label="Organization ID"
-            autoComplete="organization"
-            value={formData.tenantId}
-            onChange={handleChange('tenantId')}
-            error={Boolean(errors.tenantId)}
-            helperText={errors.tenantId || 'Your organization or team identifier'}
             disabled={isSubmitting}
             required
             sx={{ mt: 2 }}

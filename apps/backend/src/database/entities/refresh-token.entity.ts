@@ -17,7 +17,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import type { User } from './user.entity.js';
+import { User } from './user.entity.js';
 
 @Entity('refresh_tokens')
 export class RefreshToken {
@@ -32,7 +32,7 @@ export class RefreshToken {
   @Index('idx_refresh_tokens_user')
   userId!: string;
 
-  @ManyToOne('User', 'refreshTokens', { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user!: User;
 

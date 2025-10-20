@@ -17,7 +17,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import type { User } from './user.entity.js';
+import { User } from './user.entity.js';
 
 @Entity('tenants')
 export class Tenant {
@@ -44,6 +44,6 @@ export class Tenant {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany(() => User, user => user.tenant)
+  @OneToMany(() => User, (user) => user.tenant)
   users!: User[];
 }

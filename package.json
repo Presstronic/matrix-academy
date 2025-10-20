@@ -17,7 +17,7 @@
   },
   "scripts": {
     "backend": "turbo run dev --filter=@matrix-academy/backend",
-    "dev": "turbo run dev --parallel",
+    "dev": "./scripts/ensure-infra.sh && turbo run dev --parallel",
     "build": "turbo run build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

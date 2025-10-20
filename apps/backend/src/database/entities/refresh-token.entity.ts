@@ -45,7 +45,7 @@ export class RefreshToken {
   @Column({ nullable: true })
   revokedAt?: Date;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   userAgent?: string;
 
   @Column({ type: 'varchar', length: 45, nullable: true })

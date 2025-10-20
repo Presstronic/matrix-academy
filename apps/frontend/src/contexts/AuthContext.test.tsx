@@ -64,7 +64,13 @@ describe('AuthContext', () => {
   const mockUser = {
     id: '1',
     email: 'test@example.com',
-    name: 'Test User',
+    firstName: 'Test',
+    lastName: 'User',
+    roles: ['user'],
+    tenantId: 'test-tenant',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const mockAuthResponse = {
@@ -256,7 +262,8 @@ describe('AuthContext', () => {
         await result.current.register({
           email: 'new@example.com',
           password: 'password',
-          name: 'New User',
+          firstName: 'New',
+          lastName: 'User',
         });
       });
 
@@ -287,6 +294,8 @@ describe('AuthContext', () => {
           await result.current.register({
             email: 'existing@example.com',
             password: 'password',
+            firstName: 'Test',
+            lastName: 'User',
           });
         } catch {
           // Expected error

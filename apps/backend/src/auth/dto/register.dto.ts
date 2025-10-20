@@ -8,7 +8,7 @@
  * @copyright 2025 Presstronic Studios LLC
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({
@@ -46,12 +46,4 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   lastName?: string;
-
-  @ApiProperty({
-    description: 'Tenant ID for multi-tenancy',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  tenantId!: string;
 }

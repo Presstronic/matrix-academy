@@ -19,7 +19,15 @@ describe('ProtectedRoute', () => {
     const { useAuth } = await import('@/hooks/useAuth');
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: true,
-      user: { id: '1', email: 'test@example.com' },
+      user: {
+        id: '1',
+        email: 'test@example.com',
+        roles: ['user'],
+        tenantId: 'test-tenant',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
       isLoading: false,
       error: null,
       login: vi.fn(),
@@ -72,6 +80,10 @@ describe('ProtectedRoute', () => {
             </ProtectedRoute>
           ),
         },
+        {
+          path: '/',
+          element: <div>Home Page</div>,
+        },
       ],
       {
         initialEntries: ['/protected'],
@@ -106,6 +118,10 @@ describe('ProtectedRoute', () => {
               <div>Protected Content</div>
             </ProtectedRoute>
           ),
+        },
+        {
+          path: '/login',
+          element: <div>Login Page</div>,
         },
       ],
       {

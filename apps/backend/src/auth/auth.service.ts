@@ -20,6 +20,8 @@ import { LessThan } from 'typeorm';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { RefreshToken, User } from '../database/entities/index.js';
 import { Role } from '../enums/role.enum.js';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { TenantService } from '../tenant/tenant.service.js';
 import type { InternalAuthResponse } from './dto/auth-response.dto.js';
 import { UserResponseDto } from './dto/auth-response.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
@@ -35,6 +37,7 @@ export class AuthService {
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
     private configService: ConfigService<EnvironmentVariables>,
+    private tenantService: TenantService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<InternalAuthResponse> {
@@ -48,12 +51,15 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(registerDto.password, this.SALT_ROUNDS);
 
+    // Get default tenant for individual users
+    const defaultTenantId = await this.tenantService.getDefaultTenantId();
+
     const user = this.userRepository.create({
       email: registerDto.email,
       password: hashedPassword,
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
-      tenantId: registerDto.tenantId,
+      tenantId: defaultTenantId,
       roles: [Role.USER],
       isActive: true,
     });

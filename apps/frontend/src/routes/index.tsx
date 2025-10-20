@@ -14,6 +14,8 @@ import { HomePage } from '@/pages/HomePage';
 // Lazy-loaded pages for code splitting
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,22 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: 'login',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <LoginPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'register',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <RegisterPage />
+          </Suspense>
+        ),
       },
       {
         path: 'dashboard',

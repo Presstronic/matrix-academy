@@ -23,6 +23,9 @@ async function bootstrap(): Promise<void> {
     },
   });
 
+  // Set global API prefix
+  app.setGlobalPrefix('api');
+
   // Enable cookie parser
   app.use(cookieParser());
 

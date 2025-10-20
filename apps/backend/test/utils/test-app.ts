@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { Injectable, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,8 +10,6 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ThrottlerStorageService } from '@nestjs/throttler';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import type { Cache } from 'cache-manager';
-import type { RedisStore } from 'cache-manager-redis-yet';
 import cookieParser from 'cookie-parser';
 
 import { AppModule } from '../../src/app.module.js';
@@ -133,26 +130,5 @@ export const createTestApp = async (): Promise<INestApplication> => {
 
 export const closeTestApp = async (app: INestApplication): Promise<void> => {
   if (!app) return;
-
-  try {
-    const cache = app.get<Cache>(CACHE_MANAGER, { strict: false });
-
-    // Narrow to the Redis store used by cache-manager-redis-yet
-    const redisStore = cache.stores?.[0] as unknown as RedisStore;
-
-    // Derive the client type from the store to avoid cross-package type conflicts
-    type RedisClientFromStore = RedisStore['client'];
-
-    const client: RedisClientFromStore | undefined = redisStore?.client;
-
-    if (client && typeof client.quit === 'function') {
-      await client.quit();
-    } else if (client && typeof (client as { disconnect?: () => void }).disconnect === 'function') {
-      (client as { disconnect: () => void }).disconnect();
-    }
-  } catch {
-    // swallow in tests
-  }
-
   await app.close();
 };

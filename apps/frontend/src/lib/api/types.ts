@@ -65,10 +65,15 @@ export interface AuthTokenResponse {
 export interface User {
   id: string;
   email: string;
-  name?: string;
-  role?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+  tenantId: string;
+  isActive: boolean;
+  emailVerifiedAt?: string;
+  lastLoginAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
@@ -85,7 +90,8 @@ export interface LoginCredentials {
 export interface RegistrationData {
   email: string;
   password: string;
-  name?: string;
+  firstName: string;
+  lastName: string;
 }
 
 /**

@@ -12,6 +12,8 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -19,6 +21,7 @@ import {
 
 import { Role } from '../../enums/role.enum.js';
 import { RefreshToken } from './refresh-token.entity.js';
+import { Tenant } from './tenant.entity.js';
 
 @Entity('users')
 export class User {
@@ -44,6 +47,10 @@ export class User {
   @Column({ type: 'uuid' })
   @Index('idx_users_tenant')
   tenantId!: string;
+
+  @ManyToOne(() => Tenant, (tenant) => tenant.users)
+  @JoinColumn({ name: 'tenantId' })
+  tenant!: Tenant;
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;

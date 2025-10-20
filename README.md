@@ -25,7 +25,11 @@ Rather than endless tutorials, every decision you make impacts your path—combi
 
 ### ✅ Implemented
 
-- 🔐 **Authentication System** — JWT-based authentication with refresh tokens
+- 🔐 **Authentication System** — JWT-based authentication with refresh tokens, login/registration pages with form validation
+- 🎨 **Frontend Application** — React 18 + Vite + Material-UI with responsive design and Matrix-themed UI
+- 🏠 **Landing Page** — Hero section, features showcase, and call-to-action with WCAG 2.1 AA accessibility
+- 📱 **Responsive Navigation** — Mobile-friendly header with conditional rendering based on auth state
+- 🛣️ **Client-Side Routing** — React Router with protected routes and navigation
 - 👥 **Multi-Tenancy** — Full tenant isolation at the database level
 - 🛡️ **Role-Based Access Control (RBAC)** — Flexible permissions system
 - ⚡ **Redis Caching** — HTTP response caching with automatic invalidation
@@ -134,8 +138,24 @@ The frontend application is built with:
 
 - **React 18** with TypeScript
 - **Vite** for fast development and optimized builds
-- **Material-UI (MUI)** v6 for UI components
-- **Emotion** for styling
+- **Material-UI (MUI)** v6 for UI components and theming
+- **React Router** for client-side routing
+- **Emotion** for CSS-in-JS styling
+
+**Available Pages:**
+
+- `/` — Landing page with hero section and features (public)
+- `/login` — User authentication with form validation (public)
+- `/register` — Account creation with comprehensive validation (public)
+- `/dashboard` — User dashboard (protected, requires authentication)
+
+**Key Features:**
+
+- Responsive design across mobile, tablet, and desktop
+- Custom Matrix-themed UI with green/black color scheme
+- WCAG 2.1 AA accessibility compliance
+- Form validation with real-time error feedback
+- Conditional navigation based on authentication state
 
 ```bash
 # Navigate to frontend directory
@@ -155,6 +175,9 @@ pnpm preview
 
 # Run linter
 pnpm lint
+
+# Run tests
+pnpm test
 ```
 
 The frontend dev server runs on http://localhost:5173 with hot module replacement (HMR) enabled.
@@ -184,8 +207,18 @@ docker run -p 3000:3000 --env-file apps/backend/.env matrix-academy-backend:prod
 
 ## 📚 Documentation
 
+### Backend Documentation
+
 - [Database Setup & Migrations](./docs/DATABASE.md) - PostgreSQL configuration, TypeORM migrations, and best practices
+- [Security Configuration](./docs/SECURITY.md) - CORS, rate limiting, Helmet headers, and security best practices
+- [Authorization & RBAC](./docs/AUTHORIZATION.md) - Role-based access control and permissions system
+- [Caching Strategy](./docs/CACHING.md) - Redis caching implementation and invalidation patterns
+- [API Conventions](./docs/API-CONVENTIONS.md) - Standard API response formats and conventions
 - **API Documentation**: Interactive Swagger UI available at http://localhost:3000/api/docs when running locally
+
+### Frontend Documentation
+
+- [Accessibility Audit](./apps/frontend/ACCESSIBILITY_AUDIT.md) - WCAG 2.1 AA compliance report and testing recommendations
 
 ---
 
@@ -194,33 +227,54 @@ docker run -p 3000:3000 --env-file apps/backend/.env matrix-academy-backend:prod
 Run the test suites to ensure everything is working correctly:
 
 ```bash
-# Unit tests
+# All tests (backend + frontend)
 pnpm test
 
-# Unit tests with coverage
-pnpm test:cov
+# Backend unit tests
+pnpm --filter @matrix-academy/backend test
 
-# E2E tests
+# Backend E2E tests
 pnpm --filter @matrix-academy/backend test:e2e
 
-# E2E tests with coverage
-pnpm --filter @matrix-academy/backend test:e2e:cov
+# Frontend tests
+pnpm --filter @matrix-academy/frontend test
+
+# Tests with coverage
+pnpm test:cov
 
 # Watch mode for development
 pnpm test:watch
 ```
 
-**Current Coverage:**
+**Test Coverage:**
 
-- Unit Tests: 39 passing
-- E2E Tests: 39 passing
+- **Backend**: Unit and E2E tests for authentication, multi-tenancy, RBAC, caching, and API endpoints
+- **Frontend**: Component tests for pages (Home, Login, Register, Dashboard), navigation (AppHeader, ProtectedRoute), and authentication context
 - Overall coverage tracked via CodeCov
+
+**Frontend Test Files:**
+
+- `HomePage.test.tsx` — Landing page rendering and navigation
+- `LoginPage.test.tsx` — Login form validation and submission
+- `RegisterPage.test.tsx` — Registration form validation and account creation
+- `AppHeader.test.tsx` — Responsive navigation and auth state handling
+- `AuthContext.test.tsx` — Authentication state management
+- `ProtectedRoute.test.tsx` — Route protection logic
 
 ---
 
 ## 🔐 Authentication
 
-The API uses JWT-based authentication with refresh tokens:
+The application uses JWT-based authentication with refresh tokens, providing both API endpoints and user-facing pages.
+
+### Frontend Pages
+
+- **Landing Page** (`/`) — Public homepage with login/register CTAs
+- **Registration** (`/register`) — Create account with validation (email, password requirements, name fields)
+- **Login** (`/login`) — Authenticate with email and password
+- **Protected Routes** — Automatic redirect to login for unauthenticated users
+
+### API Endpoints
 
 1. **Register**: `POST /auth/register` - Create a new user account
 2. **Login**: `POST /auth/login` - Get access and refresh tokens

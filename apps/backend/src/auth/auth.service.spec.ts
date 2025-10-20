@@ -12,10 +12,12 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import type { DeleteResult } from 'typeorm';
 
 import { RefreshToken, User } from '../database/entities/index.js';
 import type { Tenant } from '../database/entities/tenant.entity.js';
 import { TenantService } from '../tenant/tenant.service.js';
+import { createMockRepository } from '../test-helpers/repository.mock.js';
 import { AuthService } from './auth.service.js';
 
 // ---------- Typed mock data ----------
@@ -47,7 +49,7 @@ const existingUser = {
   lastLoginAt: new Date(),
   createdAt: new Date(),
   updatedAt: new Date(),
-};
+} as User;
 
 const mockRefreshTokenData = {
   id: 'refresh-1',
@@ -56,7 +58,7 @@ const mockRefreshTokenData = {
   expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   isRevoked: false,
   createdAt: new Date(),
-};
+} as RefreshToken;
 
 // ---------- Typed mocks (no `any`) ----------
 
@@ -67,25 +69,16 @@ const mockTenantService = {
   findBySlug: jest.fn<(slug: string) => Promise<Tenant | null>>().mockResolvedValue(mockTenant),
 } as unknown as TenantService;
 
-const mockUserRepository = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  findOne: jest.fn<any>().mockResolvedValue(existingUser),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: jest.fn<any>().mockReturnValue(existingUser),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  save: jest.fn<any>().mockResolvedValue(existingUser),
-};
+const mockUserRepository = createMockRepository<User>();
+mockUserRepository.findOne.mockResolvedValue(existingUser);
+mockUserRepository.create.mockReturnValue(existingUser);
+mockUserRepository.save.mockResolvedValue(existingUser);
 
-const mockRefreshTokenRepository = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  findOne: jest.fn<any>().mockResolvedValue(mockRefreshTokenData),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: jest.fn<any>().mockReturnValue(mockRefreshTokenData),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  save: jest.fn<any>().mockResolvedValue(mockRefreshTokenData),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  delete: jest.fn<any>().mockResolvedValue({ affected: 1 }),
-};
+const mockRefreshTokenRepository = createMockRepository<RefreshToken>();
+mockRefreshTokenRepository.findOne.mockResolvedValue(mockRefreshTokenData);
+mockRefreshTokenRepository.create.mockReturnValue(mockRefreshTokenData);
+mockRefreshTokenRepository.save.mockResolvedValue(mockRefreshTokenData);
+mockRefreshTokenRepository.delete.mockResolvedValue({ affected: 1 } as DeleteResult);
 
 const mockJwtService = {
   signAsync: jest.fn<() => Promise<string>>().mockResolvedValue('signed.jwt.token'),

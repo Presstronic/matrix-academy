@@ -73,7 +73,6 @@ describe('Auth Service', () => {
         password: 'password123',
         firstName: 'New',
         lastName: 'User',
-        tenantId: 'test-tenant',
       };
       const authResponse = {
         user: {
@@ -82,7 +81,6 @@ describe('Auth Service', () => {
           firstName: 'New',
           lastName: 'User',
           roles: ['user'],
-          tenantId: 'test-tenant',
           isActive: true,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -104,7 +102,6 @@ describe('Auth Service', () => {
         password: '123',
         firstName: 'Test',
         lastName: 'User',
-        tenantId: 'test-tenant',
       };
 
       mock.onPost('/auth/register').reply(400, {

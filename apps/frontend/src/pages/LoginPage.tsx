@@ -10,6 +10,39 @@ import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-ro
 
 import { useAuth } from '@/hooks/useAuth';
 
+/**
+ * Location state structure for redirect after login
+ */
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
+/**
+ * Type guard to check if location state has the expected structure
+ */
+function isLocationState(state: unknown): state is LocationState {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    (!('from' in state) ||
+      (typeof (state as LocationState).from === 'object' &&
+        (state as LocationState).from !== null &&
+        typeof (state as LocationState).from?.pathname === 'string'))
+  );
+}
+
+/**
+ * Safely extract the intended destination from location state
+ */
+function getIntendedDestination(state: unknown): string {
+  if (isLocationState(state) && state.from?.pathname) {
+    return state.from.pathname;
+  }
+  return '/';
+}
+
 export function LoginPage() {
   const { login, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +59,7 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get the intended destination from location state, default to landing page
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/';
+  const from = getIntendedDestination(location.state);
 
   // Redirect if already authenticated
   if (user && !authLoading) {

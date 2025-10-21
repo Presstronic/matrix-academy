@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @file 1761017160535-AddAvatarToUsers.ts — Matrix Academy (interactive learning platform)
- * @author Your Name <you@example.com>
+ * @author Demian Seiler <demian@gitaddremote.com>
  * @copyright 2025 Presstronic Studios LLC
  */
 import type { MigrationInterface, QueryRunner } from 'typeorm';

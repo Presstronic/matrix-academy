@@ -132,37 +132,56 @@ describe('AppHeader', () => {
       mockGetCurrentUser.mockResolvedValue(mockUser);
     });
 
-    it('should display Dashboard and Logout buttons', async () => {
+    it('should display user name and avatar with user menu', async () => {
       renderWithProviders(<AppHeader />);
 
       await waitFor(() => {
-        expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
+        expect(screen.getByText('Test User')).toBeInTheDocument();
       });
 
-      expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /user menu/i })).toBeInTheDocument();
     });
 
-    it('should link to dashboard page', async () => {
+    it('should link to dashboard page in user menu', async () => {
+      const user = userEvent.setup();
       renderWithProviders(<AppHeader />);
 
       await waitFor(() => {
-        const dashboardLink = screen.getByRole('link', { name: /dashboard/i });
+        expect(screen.getByRole('button', { name: /user menu/i })).toBeInTheDocument();
+      });
+
+      // Open user menu
+      const userMenuButton = screen.getByRole('button', { name: /user menu/i });
+      await user.click(userMenuButton);
+
+      await waitFor(() => {
+        const dashboardLink = screen.getByRole('menuitem', { name: /dashboard/i });
+        expect(dashboardLink).toBeInTheDocument();
         expect(dashboardLink).toHaveAttribute('href', '/dashboard');
       });
     });
 
-    it('should call logout when logout button is clicked', async () => {
+    it('should call logout when logout menu item is clicked', async () => {
       const user = userEvent.setup();
       mockLogout.mockResolvedValue();
 
       renderWithProviders(<AppHeader />);
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /user menu/i })).toBeInTheDocument();
       });
 
-      const logoutButton = screen.getByRole('button', { name: /logout/i });
-      await user.click(logoutButton);
+      // Open user menu
+      const userMenuButton = screen.getByRole('button', { name: /user menu/i });
+      await user.click(userMenuButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: /logout/i })).toBeInTheDocument();
+      });
+
+      // Click logout menu item
+      const logoutMenuItem = screen.getByRole('menuitem', { name: /logout/i });
+      await user.click(logoutMenuItem);
 
       await waitFor(() => {
         expect(mockLogout).toHaveBeenCalled();

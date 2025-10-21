@@ -46,6 +46,13 @@ export function AppHeader() {
     setUserMenuAnchor(event.currentTarget);
   };
 
+  const handleUserMenuKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setUserMenuAnchor(event.currentTarget);
+    }
+  };
+
   const handleUserMenuClose = () => {
     setUserMenuAnchor(null);
   };
@@ -116,11 +123,7 @@ export function AppHeader() {
                   aria-haspopup="true"
                   aria-expanded={Boolean(userMenuAnchor)}
                   tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      handleUserMenuOpen(e as unknown as React.MouseEvent<HTMLElement>);
-                    }
-                  }}
+                  onKeyDown={handleUserMenuKeyDown}
                 >
                   <UserAvatar
                     avatar={user.avatar}

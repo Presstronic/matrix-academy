@@ -20,8 +20,8 @@ import {
 } from 'typeorm';
 
 import { Role } from '../../enums/role.enum.js';
-import { RefreshToken } from './refresh-token.entity.js';
-import { Tenant } from './tenant.entity.js';
+import type { RefreshToken } from './refresh-token.entity.js';
+import type { Tenant } from './tenant.entity.js';
 
 @Entity('users')
 export class User {
@@ -48,7 +48,7 @@ export class User {
   @Index('idx_users_tenant')
   tenantId!: string;
 
-  @ManyToOne(() => Tenant, (tenant) => tenant.users)
+  @ManyToOne('Tenant', (tenant: Tenant) => tenant.users)
   @JoinColumn({ name: 'tenantId' })
   tenant!: Tenant;
 
@@ -67,6 +67,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany(() => RefreshToken, (token) => token.user, { cascade: true })
+  @OneToMany('RefreshToken', (token: RefreshToken) => token.user, { cascade: true })
   refreshTokens!: RefreshToken[];
 }

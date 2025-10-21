@@ -13,12 +13,12 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export function ProtectedRoute({ children, redirectTo = '/' }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, redirectTo = '/login' }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to home page but save the attempted location
+    // Redirect to login page but save the attempted location
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 

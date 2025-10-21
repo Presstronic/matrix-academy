@@ -6,13 +6,47 @@
 import { Alert, Box, Button, Container, Link, Paper, TextField, Typography } from '@mui/material';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/hooks/useAuth';
+
+/**
+ * Location state structure for redirect after login
+ */
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
+/**
+ * Type guard to check if location state has the expected structure
+ */
+function isLocationState(state: unknown): state is LocationState {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    (!('from' in state) ||
+      (typeof (state as LocationState).from === 'object' &&
+        (state as LocationState).from !== null &&
+        typeof (state as LocationState).from?.pathname === 'string'))
+  );
+}
+
+/**
+ * Safely extract the intended destination from location state
+ */
+function getIntendedDestination(state: unknown): string {
+  if (isLocationState(state) && state.from?.pathname) {
+    return state.from.pathname;
+  }
+  return '/';
+}
 
 export function LoginPage() {
   const { login, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,9 +58,12 @@ export function LoginPage() {
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Get the intended destination from location state, default to landing page
+  const from = getIntendedDestination(location.state);
+
   // Redirect if already authenticated
   if (user && !authLoading) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   const validateForm = (): boolean => {
@@ -63,7 +100,8 @@ export function LoginPage() {
 
     try {
       await login(formData);
-      void navigate('/dashboard');
+      // Redirect to intended destination or landing page
+      void navigate(from, { replace: true });
     } catch (error) {
       if (error instanceof Error) {
         setSubmitError(error.message);

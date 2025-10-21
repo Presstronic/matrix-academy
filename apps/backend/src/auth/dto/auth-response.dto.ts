@@ -33,6 +33,14 @@ export class UserResponseDto {
   @Expose()
   lastName?: string;
 
+  @ApiProperty({
+    description: 'User avatar URL',
+    example: 'https://example.com/avatars/user123.jpg',
+    required: false,
+  })
+  @Expose()
+  avatar?: string;
+
   @ApiProperty({ description: 'User roles', example: ['USER'], isArray: true })
   @Expose()
   roles!: Role[];

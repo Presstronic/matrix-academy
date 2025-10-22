@@ -6,6 +6,7 @@
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
 import {
   AppBar,
   Box,
@@ -183,6 +184,12 @@ export function AppHeader() {
                 </ListItemIcon>
                 Dashboard
               </MenuItem>
+              <MenuItem component={RouterLink} to="/profile" onClick={handleUserMenuClose}>
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                Profile
+              </MenuItem>
               <Divider />
               <MenuItem onClick={() => void handleLogout()}>
                 <ListItemIcon>
@@ -230,6 +237,14 @@ export function AppHeader() {
                         onClick={handleMobileMenuClose}
                       >
                         Dashboard
+                      </MenuItem>,
+                      <MenuItem
+                        key="profile"
+                        component={RouterLink}
+                        to="/profile"
+                        onClick={handleMobileMenuClose}
+                      >
+                        Profile
                       </MenuItem>,
                       <MenuItem key="logout" onClick={() => void handleLogout()}>
                         Logout

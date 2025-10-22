@@ -16,6 +16,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <Suspense fallback={<LoadingFallback />}>
               <DashboardPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <Suspense fallback={<LoadingFallback />}>
+              <ProfilePage />
             </Suspense>
           </ProtectedRoute>
         ),

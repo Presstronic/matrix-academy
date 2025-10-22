@@ -8,6 +8,7 @@
 import { Avatar, Box, Container, Paper, Typography } from '@mui/material';
 
 import { ChangePasswordSection } from '@/components/profile/ChangePasswordSection';
+import { EditProfileSection } from '@/components/profile/EditProfileSection';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilePage() {
@@ -125,6 +126,9 @@ export default function ProfilePage() {
             <Typography variant="body1">{user.email}</Typography>
           </Box>
         </Paper>
+
+        {/* Edit Profile Section */}
+        <EditProfileSection />
 
         {/* Change Password Section */}
         <ChangePasswordSection />

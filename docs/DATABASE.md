@@ -97,6 +97,37 @@ The following scripts are available in `apps/backend/package.json`:
 
 The initial migration (`1727740800000-InitialMigration.ts`) is empty and serves as a baseline for the migration system. Future migrations will build on this foundation.
 
+### Schema Reference
+
+#### Users Table
+
+The `users` table stores user account and profile information:
+
+| Column        | Type         | Constraints      | Description                         |
+| ------------- | ------------ | ---------------- | ----------------------------------- |
+| `id`          | UUID         | PRIMARY KEY      | Unique user identifier              |
+| `email`       | VARCHAR(255) | NOT NULL, UNIQUE | User email address                  |
+| `password`    | VARCHAR(255) | NOT NULL         | Hashed password                     |
+| `username`    | VARCHAR(50)  | NOT NULL, UNIQUE | User's unique username (3-50 chars) |
+| `firstName`   | VARCHAR(255) | NULLABLE         | User's first name                   |
+| `lastName`    | VARCHAR(255) | NULLABLE         | User's last name                    |
+| `phoneNumber` | VARCHAR(20)  | NULLABLE         | User's phone number (E.164 format)  |
+| `bio`         | VARCHAR(500) | NULLABLE         | User biography/description          |
+| `tenantId`    | UUID         | NOT NULL         | Tenant isolation identifier         |
+| `createdAt`   | TIMESTAMP    | NOT NULL         | Account creation timestamp          |
+| `updatedAt`   | TIMESTAMP    | NOT NULL         | Last update timestamp               |
+
+**Indexes:**
+
+- `idx_users_username` - Index on username for faster lookups
+- Unique constraint on email
+- Unique constraint on username
+
+**Related Migrations:**
+
+- `1761142528250-AddProfileFieldsToUsers.ts` - Added username, phoneNumber, and bio fields
+- `1761143299654-MakeUsernameRequired.ts` - Made username field required
+
 ## Troubleshooting
 
 ### Connection Issues

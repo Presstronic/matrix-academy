@@ -222,6 +222,7 @@ describe('RegisterPage', () => {
       const firstNameInput = screen.getByLabelText(/First Name/i);
       const lastNameInput = screen.getByLabelText(/Last Name/i);
       const emailInput = screen.getByLabelText(/Email Address/i);
+      const usernameInput = screen.getByLabelText(/Username/i);
       const passwordInput = screen.getByLabelText(/^password/i);
       const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i);
       const submitButton = screen.getByRole('button', { name: /Register/i });
@@ -229,6 +230,7 @@ describe('RegisterPage', () => {
       await user.type(firstNameInput, 'New');
       await user.type(lastNameInput, 'User');
       await user.type(emailInput, 'newuser@example.com');
+      await user.type(usernameInput, 'newuser');
       await user.type(passwordInput, 'Password123');
       await user.type(confirmPasswordInput, 'Password123');
       await user.click(submitButton);
@@ -237,6 +239,7 @@ describe('RegisterPage', () => {
         expect(mockRegister).toHaveBeenCalledWith({
           email: 'newuser@example.com',
           password: 'Password123',
+          username: 'newuser',
           firstName: 'New',
           lastName: 'User',
         });
@@ -256,6 +259,7 @@ describe('RegisterPage', () => {
       const firstNameInput = screen.getByLabelText(/First Name/i);
       const lastNameInput = screen.getByLabelText(/Last Name/i);
       const emailInput = screen.getByLabelText(/Email Address/i);
+      const usernameInput = screen.getByLabelText(/Username/i);
       const passwordInput = screen.getByLabelText(/^password/i);
       const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i);
       const submitButton = screen.getByRole('button', { name: /Register/i });
@@ -263,6 +267,7 @@ describe('RegisterPage', () => {
       await user.type(firstNameInput, 'Existing');
       await user.type(lastNameInput, 'User');
       await user.type(emailInput, 'existing@example.com');
+      await user.type(usernameInput, 'existinguser');
       await user.type(passwordInput, 'Password123');
       await user.type(confirmPasswordInput, 'Password123');
       await user.click(submitButton);
@@ -292,6 +297,7 @@ describe('RegisterPage', () => {
       const firstNameInput = screen.getByLabelText(/First Name/i);
       const lastNameInput = screen.getByLabelText(/Last Name/i);
       const emailInput = screen.getByLabelText(/Email Address/i);
+      const usernameInput = screen.getByLabelText(/Username/i);
       const passwordInput = screen.getByLabelText(/^password/i);
       const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i);
       const submitButton = screen.getByRole('button', { name: /Register/i });
@@ -299,6 +305,7 @@ describe('RegisterPage', () => {
       await user.type(firstNameInput, 'Test');
       await user.type(lastNameInput, 'User');
       await user.type(emailInput, 'test@example.com');
+      await user.type(usernameInput, 'testuser');
       await user.type(passwordInput, 'Password123');
       await user.type(confirmPasswordInput, 'Password123');
       await user.click(submitButton);

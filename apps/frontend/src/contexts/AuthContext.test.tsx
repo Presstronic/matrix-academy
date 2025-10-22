@@ -262,6 +262,7 @@ describe('AuthContext', () => {
         await result.current.register({
           email: 'new@example.com',
           password: 'password',
+          username: 'newuser',
           firstName: 'New',
           lastName: 'User',
         });
@@ -294,6 +295,7 @@ describe('AuthContext', () => {
           await result.current.register({
             email: 'existing@example.com',
             password: 'password',
+            username: 'testuser',
             firstName: 'Test',
             lastName: 'User',
           });

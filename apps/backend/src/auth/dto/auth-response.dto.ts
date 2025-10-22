@@ -41,6 +41,22 @@ export class UserResponseDto {
   @Expose()
   avatar?: string;
 
+  @ApiProperty({ description: 'Username', example: 'johndoe', required: false })
+  @Expose()
+  username?: string;
+
+  @ApiProperty({ description: 'Phone number', example: '+1234567890', required: false })
+  @Expose()
+  phoneNumber?: string;
+
+  @ApiProperty({
+    description: 'User bio/description',
+    example: 'Software engineer passionate about learning',
+    required: false,
+  })
+  @Expose()
+  bio?: string;
+
   @ApiProperty({ description: 'User roles', example: ['USER'], isArray: true })
   @Expose()
   roles!: Role[];

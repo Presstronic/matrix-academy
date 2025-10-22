@@ -50,6 +50,15 @@ export class AuthService {
       throw new BadRequestException('User with this email already exists');
     }
 
+    // Check if username is already taken
+    const existingUsername = await this.userRepository.findOne({
+      where: { username: registerDto.username },
+    });
+
+    if (existingUsername) {
+      throw new BadRequestException('Username is already taken');
+    }
+
     const hashedPassword = await bcrypt.hash(registerDto.password, this.SALT_ROUNDS);
 
     // Get default tenant for individual users
@@ -58,6 +67,7 @@ export class AuthService {
     const user = this.userRepository.create({
       email: registerDto.email,
       password: hashedPassword,
+      username: registerDto.username,
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
       tenantId: defaultTenantId,

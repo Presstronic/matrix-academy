@@ -270,17 +270,22 @@ The application uses JWT-based authentication with refresh tokens, providing bot
 ### Frontend Pages
 
 - **Landing Page** (`/`) — Public homepage with login/register CTAs
-- **Registration** (`/register`) — Create account with validation (email, password requirements, name fields)
+- **Registration** (`/register`) — Create account with validation (email, password, username required; firstName, lastName optional)
 - **Login** (`/login`) — Authenticate with email and password
+- **Profile** (`/profile`) — View and edit user profile (username, email, name, phone, bio)
 - **Protected Routes** — Automatic redirect to login for unauthenticated users
 
 ### API Endpoints
 
-1. **Register**: `POST /auth/register` - Create a new user account
+**Authentication:**
+
+1. **Register**: `POST /auth/register` - Create a new user account (requires: email, password, username; optional: firstName, lastName)
 2. **Login**: `POST /auth/login` - Get access and refresh tokens
 3. **Refresh**: `POST /auth/refresh` - Get a new access token
 4. **Logout**: `POST /auth/logout` - Invalidate refresh token
 5. **Get User**: `GET /auth/me` - Get current user information
+
+**User Profile:** 6. **Update Profile**: `PATCH /users/profile` - Update user profile (email, username, firstName, lastName, phoneNumber, bio)
 
 All endpoints (except public routes) require a valid JWT token in the `Authorization` header:
 

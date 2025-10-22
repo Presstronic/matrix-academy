@@ -68,6 +68,9 @@ export interface User {
   firstName?: string;
   lastName?: string;
   avatar?: string;
+  username?: string;
+  phoneNumber?: string;
+  bio?: string;
   roles: string[];
   tenantId: string;
   isActive: boolean;
@@ -91,8 +94,21 @@ export interface LoginCredentials {
 export interface RegistrationData {
   email: string;
   password: string;
+  username: string;
   firstName: string;
   lastName: string;
+}
+
+/**
+ * Update profile data
+ */
+export interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  username?: string;
+  phoneNumber?: string;
+  bio?: string;
 }
 
 /**

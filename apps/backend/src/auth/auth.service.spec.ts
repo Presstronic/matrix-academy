@@ -188,11 +188,13 @@ describe('AuthService', () => {
   describe('register flow', () => {
     it('successfully registers a new user', async () => {
       // Arrange
-      mockUserRepository.findOne.mockResolvedValueOnce(null); // No existing user
+      mockUserRepository.findOne.mockResolvedValueOnce(null); // No existing email
+      mockUserRepository.findOne.mockResolvedValueOnce(null); // No existing username
 
       const registerDto = {
         email: 'new@example.com',
         password: 'password123',
+        username: 'newuser',
         firstName: 'New',
         lastName: 'User',
       };
@@ -218,6 +220,7 @@ describe('AuthService', () => {
       const registerDto = {
         email: 'alice@example.com',
         password: 'password123',
+        username: 'alice',
         firstName: 'Alice',
         lastName: 'Example',
       };

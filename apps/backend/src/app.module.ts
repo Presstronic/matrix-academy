@@ -22,6 +22,7 @@ import { getDatabaseConfig } from './config/database.config.js';
 import type { EnvironmentVariables } from './config/env.validation.js';
 import { validate } from './config/env.validation.js';
 import { getRedisConfig } from './config/redis.config.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { getRedisConfig } from './config/redis.config.js';
         await getRedisConfig(configService),
     }),
     AuthModule,
+    UsersModule,
     CommonModule,
   ],
   controllers: [AppController],

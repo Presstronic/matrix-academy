@@ -8,7 +8,7 @@
  * @copyright 2025 Presstronic Studios LLC
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({
@@ -28,6 +28,17 @@ export class RegisterDto {
   @IsNotEmpty()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   password!: string;
+
+  @ApiProperty({
+    description: 'Username (3-50 characters, letters, numbers, underscore, hyphen)',
+    example: 'johndoe',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9_-]{3,50}$/, {
+    message: 'Username must be 3-50 characters (letters, numbers, underscore, hyphen)',
+  })
+  username!: string;
 
   @ApiProperty({
     description: 'User first name',

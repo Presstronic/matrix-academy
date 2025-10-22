@@ -48,6 +48,7 @@ describe('Auth (e2e)', () => {
       const registerDto = {
         email: faker.internet.email(),
         password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
       };
@@ -71,16 +72,27 @@ describe('Auth (e2e)', () => {
     });
 
     it('should reject registration with duplicate email', async () => {
+      const email = faker.internet.email();
       const registerDto = {
-        email: faker.internet.email(),
+        email,
         password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
       };
 
       await request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(201);
 
-      return request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(400);
+      // Try to register again with same email but different username
+      const duplicateDto = {
+        email, // Same email
+        password: 'Test123456!',
+        username: faker.string.alphanumeric(10), // Different username
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      };
+
+      return request(app.getHttpServer()).post('/auth/register').send(duplicateDto).expect(400);
     });
 
     it('should reject registration with invalid email', () => {
@@ -113,15 +125,23 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/login', () => {
-    const userCredentials = {
-      email: faker.internet.email(),
-      password: 'Test123456!',
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+    let userCredentials: {
+      email: string;
+      password: string;
+      username: string;
+      firstName: string;
+      lastName: string;
     };
 
     beforeEach(async () => {
-      await request(app.getHttpServer()).post('/auth/register').send(userCredentials);
+      userCredentials = {
+        email: faker.internet.email(),
+        password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      };
+      await request(app.getHttpServer()).post('/auth/register').send(userCredentials).expect(201);
     });
 
     it('should login successfully with valid credentials', () => {
@@ -168,16 +188,24 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/refresh', () => {
-    const userCredentials = {
-      email: faker.internet.email(),
-      password: 'Test123456!',
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+    let userCredentials: {
+      email: string;
+      password: string;
+      username: string;
+      firstName: string;
+      lastName: string;
     };
 
     let cookies: string[];
 
     beforeEach(async () => {
+      userCredentials = {
+        email: faker.internet.email(),
+        password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      };
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
@@ -220,16 +248,24 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/logout', () => {
-    const userCredentials = {
-      email: faker.internet.email(),
-      password: 'Test123456!',
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+    let userCredentials: {
+      email: string;
+      password: string;
+      username: string;
+      firstName: string;
+      lastName: string;
     };
 
     let cookies: string[];
 
     beforeEach(async () => {
+      userCredentials = {
+        email: faker.internet.email(),
+        password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      };
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
@@ -258,16 +294,25 @@ describe('Auth (e2e)', () => {
   });
 
   describe('GET /auth/me', () => {
-    const userCredentials = {
-      email: faker.internet.email(),
-      password: 'Test123456!',
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+    let userCredentials: {
+      email: string;
+      password: string;
+      username: string;
+      firstName: string;
+      lastName: string;
     };
 
     let cookies: string[];
 
     beforeEach(async () => {
+      userCredentials = {
+        email: faker.internet.email(),
+        password: 'Test123456!',
+        username: faker.internet.username(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      };
+
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send(userCredentials);
@@ -308,6 +353,7 @@ describe('Auth (e2e)', () => {
       const userCredentials = {
         email: faker.internet.email(),
         password: 'Test123456!',
+        username: faker.string.alphanumeric(10),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
       };

@@ -76,3 +76,13 @@ export async function requestPasswordReset(email: string): Promise<void> {
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await post('/auth/reset-password', { token, password: newPassword });
 }
+
+/**
+ * Change password for authenticated user
+ */
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  await post('/auth/change-password', data);
+}

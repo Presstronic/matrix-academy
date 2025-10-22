@@ -71,6 +71,7 @@ describe('Auth Service', () => {
       const registrationData = {
         email: 'new@example.com',
         password: 'password123',
+        username: 'newuser',
         firstName: 'New',
         lastName: 'User',
       };
@@ -100,6 +101,7 @@ describe('Auth Service', () => {
       const registrationData = {
         email: 'invalid-email',
         password: '123',
+        username: 'testuser',
         firstName: 'Test',
         lastName: 'User',
       };

@@ -5,12 +5,13 @@
  *
  * @file Authentication API service
  */
-import { get, post } from '../client';
+import { get, patch, post } from '../client';
 import type {
   ApiResponse,
   AuthTokenResponse,
   LoginCredentials,
   RegistrationData,
+  UpdateProfileData,
   User,
 } from '../types';
 
@@ -85,4 +86,12 @@ export async function changePassword(data: {
   newPassword: string;
 }): Promise<void> {
   await post('/auth/change-password', data);
+}
+
+/**
+ * Update user profile
+ */
+export async function updateProfile(data: UpdateProfileData): Promise<User> {
+  const response = await patch<ApiResponse<User>>('/users/profile', data);
+  return response.data;
 }

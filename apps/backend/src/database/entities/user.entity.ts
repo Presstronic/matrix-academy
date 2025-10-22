@@ -44,6 +44,16 @@ export class User {
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar?: string;
 
+  @Column({ type: 'varchar', length: 50, unique: true })
+  @Index('idx_users_username')
+  username!: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phoneNumber?: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  bio?: string;
+
   @Column({ type: 'simple-array', default: Role.USER })
   roles!: Role[];
 

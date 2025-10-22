@@ -24,6 +24,7 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
+  username: string;
   firstName: string;
   lastName: string;
 }
@@ -32,6 +33,7 @@ interface FormErrors {
   email: string;
   password: string;
   confirmPassword: string;
+  username: string;
   firstName: string;
   lastName: string;
 }
@@ -43,6 +45,7 @@ export function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    username: '',
     firstName: '',
     lastName: '',
   });
@@ -50,6 +53,7 @@ export function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    username: '',
     firstName: '',
     lastName: '',
   });
@@ -66,6 +70,7 @@ export function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      username: '',
       firstName: '',
       lastName: '',
     };
@@ -75,6 +80,14 @@ export function RegisterPage() {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Username validation
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
+    } else if (!/^[a-zA-Z0-9_-]{3,50}$/.test(formData.username)) {
+      newErrors.username =
+        'Username must be 3-50 characters (letters, numbers, underscore, hyphen)';
     }
 
     // Password validation
@@ -121,6 +134,7 @@ export function RegisterPage() {
       await register({
         email: formData.email,
         password: formData.password,
+        username: formData.username,
         firstName: formData.firstName,
         lastName: formData.lastName,
       });
@@ -221,6 +235,21 @@ export function RegisterPage() {
             onChange={handleChange('email')}
             error={Boolean(errors.email)}
             helperText={errors.email}
+            disabled={isSubmitting}
+            required
+            sx={{ mt: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            id="username"
+            name="username"
+            label="Username"
+            autoComplete="username"
+            value={formData.username}
+            onChange={handleChange('username')}
+            error={Boolean(errors.username)}
+            helperText={errors.username || '3-50 characters (letters, numbers, underscore, hyphen)'}
             disabled={isSubmitting}
             required
             sx={{ mt: 2 }}

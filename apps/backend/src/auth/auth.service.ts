@@ -24,6 +24,7 @@ import { Role } from '../enums/role.enum.js';
 import { TenantService } from '../tenant/tenant.service.js';
 import type { InternalAuthResponse } from './dto/auth-response.dto.js';
 import { UserResponseDto } from './dto/auth-response.dto.js';
+import type { ChangePasswordDto } from './dto/change-password.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { RegisterDto } from './dto/register.dto.js';
 
@@ -145,6 +146,44 @@ export class AuthService {
     }
 
     return plainToInstance(UserResponseDto, user);
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Check if new password is different
+    const isSamePassword = await bcrypt.compare(changePasswordDto.newPassword, user.password);
+
+    if (isSamePassword) {
+      throw new BadRequestException('New password must be different from current password');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, this.SALT_ROUNDS);
+
+    // Update password
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+
+    // Invalidate all existing refresh tokens for security
+    await this.refreshTokenRepository.update(
+      { userId },
+      { isRevoked: true, revokedAt: new Date() },
+    );
   }
 
   async cleanupExpiredTokens(): Promise<void> {

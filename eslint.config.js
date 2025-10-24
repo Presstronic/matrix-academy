@@ -110,7 +110,9 @@ export default [
     settings: {
       // let eslint-plugin-import resolve TS paths/aliases
       'import/resolver': {
-        typescript: { project: ['./tsconfig.base.json'] },
+        typescript: {
+          project: ['./tsconfig.base.json', './apps/backend/tsconfig.eslint.json'],
+        },
       },
     },
     languageOptions: {
@@ -221,6 +223,17 @@ SPDX-License-Identifier: GPL-3.0-or-later`,
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+
+  {
+    name: 'matrix-academy:backend-types',
+    files: ['apps/backend/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './apps/backend/tsconfig.eslint.json',
+        tsconfigRootDir: __dirname,
+      },
     },
   },
 

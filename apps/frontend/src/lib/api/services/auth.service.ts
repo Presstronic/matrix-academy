@@ -5,7 +5,7 @@
  *
  * @file Authentication API service
  */
-import { get, patch, post } from '../client';
+import { del, get, patch, post } from '../client';
 import type {
   ApiResponse,
   AuthTokenResponse,
@@ -93,5 +93,25 @@ export async function changePassword(data: {
  */
 export async function updateProfile(data: UpdateProfileData): Promise<User> {
   const response = await patch<ApiResponse<User>>('/users/profile', data);
+  return response.data;
+}
+
+/**
+ * Upload user avatar
+ */
+export async function uploadAvatar(formData: FormData): Promise<User> {
+  const response = await post<ApiResponse<User>>('/users/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
+
+/**
+ * Remove user avatar
+ */
+export async function removeAvatar(): Promise<User> {
+  const response = await del<ApiResponse<User>>('/users/avatar');
   return response.data;
 }

@@ -8,7 +8,6 @@
  * @copyright 2025 Presstronic Studios LLC
  */
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -20,7 +19,6 @@ import { LessThan } from 'typeorm';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { RefreshToken, User } from '../database/entities/index.js';
 import { Role } from '../enums/role.enum.js';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { TenantService } from '../tenant/tenant.service.js';
 import type { InternalAuthResponse } from './dto/auth-response.dto.js';
 import { UserResponseDto } from './dto/auth-response.dto.js';

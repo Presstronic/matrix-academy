@@ -29,11 +29,12 @@ interface AuthState {
 /**
  * Authentication context value
  */
-interface AuthContextValue extends AuthState {
+export interface AuthContextValue extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegistrationData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setUser: (user: User) => void;
 }
 
 /**
@@ -295,6 +296,16 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
   }, [state.isAuthenticated]);
 
   /**
+   * Update user data directly (e.g., after profile update)
+   */
+  const setUser = useCallback((user: User) => {
+    setState((prev) => ({
+      ...prev,
+      user,
+    }));
+  }, []);
+
+  /**
    * Memoize context value to prevent unnecessary re-renders
    */
   const value = useMemo<AuthContextValue>(
@@ -304,8 +315,9 @@ export function AuthProvider({ children, disableTimers = false }: AuthProviderPr
       register,
       logout,
       refreshUser,
+      setUser,
     }),
-    [state, login, register, logout, refreshUser],
+    [state, login, register, logout, refreshUser, setUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

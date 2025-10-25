@@ -15,6 +15,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '../../src/app.module.js';
 import { RolesGuard } from '../../src/auth/guards/roles.guard.js';
 import { CsrfGuard } from '../../src/common/guards/csrf.guard.js';
+import type { IStorageService } from '../../src/common/services/storage/storage.interface.js';
 import { getTestDataSource } from './test-db.js';
 import { getTestJwtSecret } from './test-jwt.js';
 
@@ -58,6 +59,24 @@ class MockThrottlerStorage extends ThrottlerStorageService {
   }
 }
 
+@Injectable()
+class MockStorageService implements IStorageService {
+  uploadFile(_file: Buffer, key: string, _contentType: string): Promise<string> {
+    // Return a mock URL for testing
+    return Promise.resolve(`http://test-storage/test-bucket/${key}`);
+  }
+
+  deleteFile(_url: string): Promise<void> {
+    // Mock delete operation - do nothing
+    return Promise.resolve();
+  }
+
+  getFileUrl(key: string): string {
+    // Return a mock URL
+    return `http://test-storage/test-bucket/${key}`;
+  }
+}
+
 /**
  * Create a test NestJS application instance
  */
@@ -79,6 +98,13 @@ export const createTestApp = async (): Promise<INestApplication> => {
         if (key === 'REDIS_TTL') return 300000;
         if (key === 'THROTTLE_TTL') return 900;
         if (key === 'THROTTLE_LIMIT') return 10000;
+        // S3/MinIO test configuration
+        if (key === 'S3_ACCESS_KEY_ID') return 'test-access-key';
+        if (key === 'S3_SECRET_ACCESS_KEY') return 'test-secret-key';
+        if (key === 'S3_BUCKET_NAME') return 'test-bucket';
+        if (key === 'S3_REGION') return 'us-east-1';
+        if (key === 'S3_ENDPOINT') return 'http://localhost:9000';
+        if (key === 'S3_FORCE_PATH_STYLE') return 'true';
         return undefined;
       },
       getOrThrow: (key: string) => {
@@ -91,6 +117,13 @@ export const createTestApp = async (): Promise<INestApplication> => {
         if (key === 'REDIS_TTL') return 300000;
         if (key === 'THROTTLE_TTL') return 900;
         if (key === 'THROTTLE_LIMIT') return 10000;
+        // S3/MinIO test configuration
+        if (key === 'S3_ACCESS_KEY_ID') return 'test-access-key';
+        if (key === 'S3_SECRET_ACCESS_KEY') return 'test-secret-key';
+        if (key === 'S3_BUCKET_NAME') return 'test-bucket';
+        if (key === 'S3_REGION') return 'us-east-1';
+        if (key === 'S3_ENDPOINT') return 'http://localhost:9000';
+        if (key === 'S3_FORCE_PATH_STYLE') return 'true';
         throw new Error(`Config key ${key} not found`);
       },
     })
@@ -98,6 +131,8 @@ export const createTestApp = async (): Promise<INestApplication> => {
     .useValue(testDataSource)
     .overrideProvider(ThrottlerStorageService)
     .useClass(MockThrottlerStorage)
+    .overrideProvider('STORAGE_SERVICE')
+    .useClass(MockStorageService)
     .overrideGuard(RolesGuard)
     .useClass(MockRolesGuard)
     .overrideGuard(CsrfGuard)

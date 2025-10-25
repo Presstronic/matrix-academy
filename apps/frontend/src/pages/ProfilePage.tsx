@@ -5,10 +5,11 @@
  *
  * @file Profile page component
  */
-import { Avatar, Box, Container, Paper, Typography } from '@mui/material';
+import { Box, Container, Paper, Typography } from '@mui/material';
 
 import { ChangePasswordSection } from '@/components/profile/ChangePasswordSection';
 import { EditProfileSection } from '@/components/profile/EditProfileSection';
+import { ProfilePictureUpload } from '@/components/profile/ProfilePictureUpload';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilePage() {
@@ -20,7 +21,6 @@ export default function ProfilePage() {
 
   const firstName = user.firstName ?? '';
   const lastName = user.lastName ?? '';
-  const initials = `${firstName[0] ?? ''}${lastName[0] ?? ''}`;
 
   return (
     <Container maxWidth="md">
@@ -50,28 +50,23 @@ export default function ProfilePage() {
             boxShadow: '0 0 15px rgba(0, 255, 65, 0.1)',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                border: '2px solid',
-                borderColor: 'primary.main',
-                boxShadow: '0 0 15px rgba(0, 255, 65, 0.3)',
-                mr: 3,
-                fontSize: '2rem',
-              }}
-            >
-              {initials}
-            </Avatar>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 4, gap: 3 }}>
+            <Box sx={{ flexShrink: 0 }}>
+              <ProfilePictureUpload size={120} />
+            </Box>
 
-            <Box>
+            <Box sx={{ flex: 1, pt: 1 }}>
               <Typography variant="h4" sx={{ fontFamily: 'monospace' }}>
                 {firstName} {lastName}
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
                 {user.email}
               </Typography>
+              {user.username && (
+                <Typography variant="body2" color="text.disabled">
+                  @{user.username}
+                </Typography>
+              )}
             </Box>
           </Box>
 

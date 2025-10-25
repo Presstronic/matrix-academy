@@ -19,7 +19,8 @@ import { clearDatabase, closeTestDatabase, createTestDatabase } from './utils/te
 /**
  * Extract a cookie value from Set-Cookie headers
  */
-function getCookieValue(cookies: string[], cookieName: string): string | null {
+function getCookieValue(cookies: string[] | undefined, cookieName: string): string | null {
+  if (!cookies || !Array.isArray(cookies)) return null;
   const cookie = cookies.find((c) => c.startsWith(`${cookieName}=`));
   if (!cookie) return null;
   const match = new RegExp(`${cookieName}=([^;]+)`).exec(cookie);
@@ -308,22 +309,34 @@ describe('Auth (e2e)', () => {
       userCredentials = {
         email: faker.internet.email(),
         password: 'Test123456!',
-        username: faker.internet.username(),
+        // Generate a username that matches our validation pattern: 3-50 chars, letters/numbers/underscore/hyphen
+        username:
+          faker.internet
+            .username()
+            .replace(/[^a-zA-Z0-9_-]/g, '')
+            .slice(0, 50) || 'testuser',
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
       };
 
-      const registerResponse = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(userCredentials);
+      const registerResponse = await withCsrf(
+        request(app.getHttpServer()).post('/auth/register').send(userCredentials),
+      );
+
+      // Ensure registration succeeded
+      expect(registerResponse.status).toBe(201);
+      expect(registerResponse.headers['set-cookie']).toBeDefined();
 
       cookies = registerResponse.headers['set-cookie'] as unknown as string[];
     });
 
     it('should return current user information', () => {
+      const accessToken = getCookieValue(cookies, 'access_token');
+      expect(accessToken).toBeTruthy(); // Ensure cookie was set
+
       return request(app.getHttpServer())
         .get('/auth/me')
-        .set('Cookie', `access_token=${getCookieValue(cookies, 'access_token')}`)
+        .set('Cookie', `access_token=${accessToken}`)
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('success', true);

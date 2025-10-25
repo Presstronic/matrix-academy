@@ -34,6 +34,7 @@ describe('ProtectedRoute', () => {
       register: vi.fn(),
       logout: vi.fn(),
       refreshUser: vi.fn(),
+      setUser: vi.fn(),
     });
 
     const router = createMemoryRouter(
@@ -68,6 +69,7 @@ describe('ProtectedRoute', () => {
       register: vi.fn(),
       logout: vi.fn(),
       refreshUser: vi.fn(),
+      setUser: vi.fn(),
     });
 
     const router = createMemoryRouter(
@@ -107,6 +109,7 @@ describe('ProtectedRoute', () => {
       register: vi.fn(),
       logout: vi.fn(),
       refreshUser: vi.fn(),
+      setUser: vi.fn(),
     });
 
     const router = createMemoryRouter(
